@@ -1,0 +1,8 @@
+[
+ {"nombre": "Población", "tema": "Población", "indicador": "Población total", "fuente": "INE"},
+ {"nombre": "Educación", "tema": "Educación", "indicador": "Matrícula escolar", "fuente": "INE"},
+ {"nombre": "Salud", "tema": "Salud", "indicador": "Consultas atendidas", "fuente": "INE"},
+ {"nombre": "Empleo", "tema": "Empleo", "indicador": "Población ocupada", "fuente": "INE"},
+ {"nombre": "Vivienda", "tema": "Vivienda", "indicador": "Hogares", "fuente": "INE"},
+ {"nombre": "En blanco", "tema": "", "indicador": "", "fuente": "INE"}
+]

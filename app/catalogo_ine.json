@@ -1,0 +1,933 @@
+{
+"Accidentes de Tránsito": [
+{
+"n": "ACCIDENTES DE TRÁNSITO - VEHÍCULOS INVOLUCRADOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/accidentes-de-transito-vehiculos-involucrados",
+"d": "",
+"l": null
+},
+{
+"n": "ACCIDENTES DE TRÁNSITO - HECHOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/accidentes-de-transito-hechos",
+"d": "",
+"l": null
+},
+{
+"n": "ACCIDENTES DE TRÁNSITO - FALLECIDOS Y LESIONADOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/accidentes-de-transito-fallecidos-y-lesionados",
+"d": "Víctimas fallecidas y lesionadas en accidentes de tránsito.",
+"l": "transito"
+}
+],
+"Agropecuario": [
+{
+"n": "Destace de ganado",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/destace",
+"d": "Destace en rastros municipales y privados.",
+"l": null
+}
+],
+"Canasta básica alimentaria y ampliada": [
+{
+"n": "Costos de la CA Urbana y Rural y CBA Urbana y Rural",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/costos-de-la-cba-urbana-y-rural",
+"d": "Costos de los productos de la Canasta Ampliada y la Canasta Básica Alimentaria, urbana y rural.",
+"l": null
+},
+{
+"n": "HOJA DE BALANCE DE ALIMENTOS (HBA)",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hoja-de-balance-de-alimentos-hba",
+"d": "Información sobre el balance de alimentos del país.",
+"l": null
+},
+{
+"n": "PRECIOS PROMEDIO CANASTA BASICA ALIMENTARIA",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/precios-promedio-canasta-basica-alimentaria",
+"d": "Historial de precios promedio de la Canasta Básica Alimentaria.",
+"l": null
+}
+],
+"Comercio Exterior": [
+{
+"n": "IMPORTACIONES",
+"f": [
+"XLSX",
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/importaciones-ano-2022",
+"d": "Mercancías adquiridas en el exterior por puertos y aeropuertos.",
+"l": null
+},
+{
+"n": "EXPORTACIONES",
+"f": [
+"XLSX",
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/exportaciones-ano-2022",
+"d": "Salida de mercancías por puertos y aeropuertos, por sección del SAC.",
+"l": null
+}
+],
+"Condiciones de vida": [
+{
+"n": "ENIGH 2021 - 2022",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enigh-2023",
+"d": "Encuesta Nacional de Ingresos y Gastos en los Hogares.",
+"l": null
+},
+{
+"n": "VIOLENCIA INTRAFAMILIAR",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/violencia-intrafamiliar",
+"d": "Estadísticas de violencia intrafamiliar según el Decreto 97-96.",
+"l": null
+},
+{
+"n": "ENCOVI 2014",
+"f": [
+"ZIP",
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/encovi-2014",
+"d": "Encuesta Nacional de Condiciones de Vida.",
+"l": null
+},
+{
+"n": "ENCOVI 2011",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/encovi-2011",
+"d": "Encuesta Nacional de Condiciones de Vida.",
+"l": null
+},
+{
+"n": "ENCOVI 2006",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/encovi-2006",
+"d": "Encuesta Nacional de Condiciones de Vida.",
+"l": null
+},
+{
+"n": "ENCOVI 2000",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/encovi-2000-personas-02",
+"d": "Encuesta Nacional de Condiciones de Vida.",
+"l": null
+}
+],
+"Educación": [
+{
+"n": "EDUCACION SUPERIOR - DOCENTES",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/educacion-superior-docentes",
+"d": "",
+"l": null
+},
+{
+"n": "ESTABLECIMIENTOS EDUCACION FORMAL",
+"f": [
+"XLSX",
+"XLS"
+],
+"u": "https://datos.ine.gob.gt/dataset/establecimientos-educacion-formal",
+"d": "",
+"l": null
+},
+{
+"n": "EDUCACION FORMAL 2025",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/educacion-formal-2025",
+"d": "",
+"l": null
+},
+{
+"n": "EDUCACION SUPERIOR - MATRICULADOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/educacion-superior-matriculados",
+"d": "",
+"l": null
+},
+{
+"n": "EDUCACION SUPERIOR - GRADUADOS",
+"f": [
+"XLSX",
+"XLS"
+],
+"u": "https://datos.ine.gob.gt/dataset/educacion-superior-graduados",
+"d": "",
+"l": null
+},
+{
+"n": "BIBLIOTECAS Y CENTROS DE DOCUMENTACIÓN",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/bibliotecas-y-centros-de-documentacion",
+"d": "Características, materiales, personal y usuarios de bibliotecas.",
+"l": null
+},
+{
+"n": "EDUCACION FORMAL 2024",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/educacion-formal-2024",
+"d": "",
+"l": null
+},
+{
+"n": "EDUCACION FORMAL 2023",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/educacion-formal-2023",
+"d": "",
+"l": null
+},
+{
+"n": "EDUCACION FORMAL 2022",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/educacion-formal",
+"d": "",
+"l": null
+}
+],
+"Empleo": [
+{
+"n": "ENEI 2019",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2019",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2013",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2013",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2021",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2021",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2018",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2018",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2017",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2017",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2016",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2016",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2015",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2015",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2014",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2014",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2004",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2004",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2002",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2002",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2011",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2011",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2012",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2012",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2010",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2010",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+},
+{
+"n": "ENEI 2003",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/enei-2003",
+"d": "Encuesta Nacional de Empleo e Ingresos.",
+"l": null
+}
+],
+"Gestión Municipal": [
+{
+"n": "ENCASBA 2019",
+"f": [
+"CSV",
+"XLS"
+],
+"u": "https://datos.ine.gob.gt/dataset/encasba-2019",
+"d": "Servicios públicos básicos que prestan el Ejecutivo y las municipalidades.",
+"l": null
+}
+],
+"IPC": [
+{
+"n": "IPC Base Anual 2024=100.00",
+"f": [
+"XLS",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/ipc-por-producto-ano-2024-100-0",
+"d": "Índice de Precios al Consumidor por producto.",
+"l": null
+},
+{
+"n": "IPC por Producto Base Diciembre 2023 = 100.00",
+"f": [
+"XLS"
+],
+"u": "https://datos.ine.gob.gt/dataset/indice-de-precios-al-consumidor-base-diciembre-2023-100-0",
+"d": "Índice de Precios al Consumidor por producto.",
+"l": null
+},
+{
+"n": "IPC Por Gasto Básico Base Diciembre 2010=100.00",
+"f": [
+"XLS",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/ipc-por-gasto-basico",
+"d": "Índice de precios al consumidor por gasto básico.",
+"l": null
+},
+{
+"n": "Indicadores IPC base diciembre 2023=100.00",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/indicadores-ipc-base-diciembre-2023-100-0",
+"d": "Indicadores del IPC con base diciembre 2023.",
+"l": null
+}
+],
+"Medio Ambiente": [
+{
+"n": "BASE ANUAL 2025 INCAUTACIONES PNC DIPRONA",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/base-anual_2025_incautaciones_pnc_diprona",
+"d": "",
+"l": null
+},
+{
+"n": "6. Gestión de Riesgo y Atención A Desastres 2022",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/6-gestion-de-riesgo-y-atencion-a-desastres",
+"d": "Consecuencias económicas y sociales de fenómenos naturales.",
+"l": null
+},
+{
+"n": "1. Recurso Hídrico 2022",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/1-recurso-hidrico",
+"d": "Disponibilidad y calidad del recurso hídrico.",
+"l": null
+},
+{
+"n": "2. Clima y Atmósfera 2022",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/2-clima-y-atmosfera",
+"d": "Cambio climático y calentamiento global.",
+"l": null
+},
+{
+"n": "8. Concientización Ambiental 2022",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/8-concientizacion-ambiental",
+"d": "Personas que participaron en talleres ambientales.",
+"l": null
+},
+{
+"n": "4. Gestión Ambiental 2022",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/4-gestion-ambiental",
+"d": "Acciones económicas y socio-legales a favor del ambiente.",
+"l": null
+},
+{
+"n": "5. Desechos Sólidos 2022",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/5-desechos-solidos",
+"d": "Generación de basura.",
+"l": null
+},
+{
+"n": "3. Ecosistemas 2022",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/3-ecosistemas",
+"d": "Acciones para proteger los bosques.",
+"l": null
+},
+{
+"n": "BASE DE DATOS DE INCENTIVOS INAB",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/base-de-datos-de-incentivos-inab",
+"d": "Incentivos del Instituto Nacional de Bosques.",
+"l": null
+}
+],
+"Migración": [
+{
+"n": "Extranjeros Atendidos",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/extranjeros-atendidos",
+"d": "",
+"l": null
+},
+{
+"n": "Extranjeros Inadmitidos",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/extranjeros-inadmitidos",
+"d": "",
+"l": null
+},
+{
+"n": "Extranjeros Expulsados",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/extranjeros-expulsados",
+"d": "",
+"l": null
+},
+{
+"n": "Flujo Migratorio Año 2024",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/flujo-migratorio",
+"d": "",
+"l": null
+},
+{
+"n": "Retornados Año 2024",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/retornados-ano-2024vv",
+"d": "",
+"l": null
+},
+{
+"n": "Retornados Año 2023",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/retornados",
+"d": "",
+"l": null
+}
+],
+"Población": [
+{
+"n": "CENSO 2018 - LUGARES POBLADOS",
+"f": [
+"XLSX",
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/censo-2018-lugares-poblados",
+"d": "Datos del censo por lugar poblado.",
+"l": null
+},
+{
+"n": "PROYECCIONES DE POBLACIÓN 2015 - 2030",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/proyecciones-de-poblacion-2015-2030",
+"d": "Estimaciones y proyecciones de población municipal.",
+"l": null
+},
+{
+"n": "ENCOVI 2011",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/encovi-2011",
+"d": "Encuesta Nacional de Condiciones de Vida.",
+"l": null
+},
+{
+"n": "ENCASBA 2019",
+"f": [
+"CSV",
+"XLS"
+],
+"u": "https://datos.ine.gob.gt/dataset/encasba-2019",
+"d": "Servicios públicos básicos que prestan el Ejecutivo y las municipalidades.",
+"l": null
+}
+],
+"Precios": [
+{
+"n": "Costos de la CA Urbana y Rural y CBA Urbana y Rural",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/costos-de-la-cba-urbana-y-rural",
+"d": "Costos de los productos de la Canasta Ampliada y la Canasta Básica Alimentaria, urbana y rural.",
+"l": null
+},
+{
+"n": "IPC Base Anual 2024=100.00",
+"f": [
+"XLS",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/ipc-por-producto-ano-2024-100-0",
+"d": "Índice de Precios al Consumidor por producto.",
+"l": null
+},
+{
+"n": "ÍNDICE DE PRECIOS DE MATERIALES DE CONSTRUCCIÓN (IPMC)",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/indice-de-precios-de-materiales-de-construccion-ipmc",
+"d": "Variación mensual de precios de materiales de construcción.",
+"l": null
+},
+{
+"n": "DIRECTORIO NACIONAL ESTADÍSTICO DE EMPRESAS (DINESE)",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/directorio-nacional-estadistico-de-empresas-dinese",
+"d": "Empresas del país y sus variables económicas.",
+"l": null
+},
+{
+"n": "IPC por Producto Base Diciembre 2023 = 100.00",
+"f": [
+"XLS"
+],
+"u": "https://datos.ine.gob.gt/dataset/indice-de-precios-al-consumidor-base-diciembre-2023-100-0",
+"d": "Índice de Precios al Consumidor por producto.",
+"l": null
+},
+{
+"n": "IPC Por Gasto Básico Base Diciembre 2010=100.00",
+"f": [
+"XLS",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/ipc-por-gasto-basico",
+"d": "Índice de precios al consumidor por gasto básico.",
+"l": null
+},
+{
+"n": "Indicadores IPC base diciembre 2023=100.00",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/indicadores-ipc-base-diciembre-2023-100-0",
+"d": "Indicadores del IPC con base diciembre 2023.",
+"l": null
+},
+{
+"n": "PRECIOS PROMEDIO CANASTA BASICA ALIMENTARIA",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/precios-promedio-canasta-basica-alimentaria",
+"d": "Historial de precios promedio de la Canasta Básica Alimentaria.",
+"l": null
+},
+{
+"n": "PRECIOS RECOLECTADOS - INDICE DE PRECIOS AL CONSUMIDOR",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/precios-recolectados-indice-de-precios-al-consumidor",
+"d": "Precios recolectados para el cálculo del IPC.",
+"l": null
+},
+{
+"n": "ÍNDICE DE PRECIOS AL POR MAYOR",
+"f": [
+"CSV"
+],
+"u": "https://datos.ine.gob.gt/dataset/indice-de-precios-al-por-mayor",
+"d": "Historial de índices de precios al por mayor.",
+"l": null
+},
+{
+"n": "PRECIOS DE REFERENCIA",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/precios-de-referencia",
+"d": "Datos de Guatecompras para precios de referencia.",
+"l": null
+}
+],
+"Salud": [
+{
+"n": "ESTADÍSTICAS HOSPITALARIAS - SERVICIOS INTERNOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/estadisticas-hospitalarias-servicios-internos",
+"d": "",
+"l": null
+},
+{
+"n": "ESTADÍSTICAS HOSPITALARIAS - SERVICIOS EXTERNOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/estadisticas-hospitalarias-servicios-externos",
+"d": "",
+"l": null
+}
+],
+"Servicios Públicos Básicos": [
+{
+"n": "ENCASBA 2019",
+"f": [
+"CSV",
+"XLS"
+],
+"u": "https://datos.ine.gob.gt/dataset/encasba-2019",
+"d": "Servicios públicos básicos que prestan el Ejecutivo y las municipalidades.",
+"l": null
+}
+],
+"Transporte y Servicios": [
+{
+"n": "Construcciones Particulares",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/construcciones-particulares-nivel-departamental",
+"d": "Licencias de construcción particulares por trimestre y municipio.",
+"l": "construcciones"
+}
+],
+"Violencia": [
+{
+"n": "FALTAS JUDICIALES",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/faltas-judiciales",
+"d": "Faltas descritas en el Código Penal y sus sanciones.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - AGRAVIADOS MP",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hechos-delictivos-agraviados-mp",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - SERVICIO MEDICO NECROPSIAS INACIF",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hechos-delictivos-servicio-medico-necropsias-inacif",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - SERVICIO MEDICO LEGAL INACIF",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hechos-delictivos-servicio-medico-legal-inacif",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - SERVICIO MEDICO EXHUMACIONES INACIF",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hechos-delictivos-servicio-medico-exhumaciones-inacif",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - VÍCTIMAS PNC",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hechos-delictivos-victimas-pnc",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - DETENIDOS PNC",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/detenidos-pnc",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - SENTENCIAS OJ",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hechos-delictivos-sentencias-oj",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "HECHOS DELICTIVOS - SINDICADOS MP",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/hechos-delictivos-sindicados-mp",
+"d": "Hechos, víctimas, sindicados y sentencias de delitos en Guatemala.",
+"l": null
+},
+{
+"n": "VIOLENCIA CONTRA LA MUJER 2024",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/violencia-contra-la-mujer-2024",
+"d": "Delitos de la ley contra el femicidio y otras formas de violencia contra la mujer.",
+"l": null
+},
+{
+"n": "VIOLENCIA INTRAFAMILIAR",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/violencia-intrafamiliar",
+"d": "Estadísticas de violencia intrafamiliar según el Decreto 97-96.",
+"l": null
+},
+{
+"n": "VIOLENCIA CONTRA LA MUJER 2023",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/violencia-contra-la-mujer-2023",
+"d": "Delitos de la ley contra el femicidio y otras formas de violencia contra la mujer.",
+"l": null
+},
+{
+"n": "VIOLENCIA CONTRA LA MUJER 2022",
+"f": [
+"CSV",
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/violencia-contra-la-mujer-2022",
+"d": "Delitos de la ley contra el femicidio y otras formas de violencia contra la mujer.",
+"l": null
+}
+],
+"Vitales": [
+{
+"n": "ESTADÍSTICAS VITALES - DEFUNCIONES",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/estadisticas-vitales-defunciones",
+"d": "Registros administrativos de nacimientos, defunciones, matrimonios y divorcios.",
+"l": null
+},
+{
+"n": "ESTADÍSTICAS VITALES - NACIMIENTOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/estadisticas-vitales-nacimientos",
+"d": "Registros administrativos de nacimientos, defunciones, matrimonios y divorcios.",
+"l": null
+},
+{
+"n": "ESTADÍSTICAS VITALES - DEFUNCIONES FETALES",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/estadisticas-vitales-defunciones-fetales",
+"d": "Registros administrativos de nacimientos, defunciones, matrimonios y divorcios.",
+"l": null
+},
+{
+"n": "ESTADÍSTICAS VITALES - MATRIMONIOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/estadisticas-vitales-matrimonios",
+"d": "Registros administrativos de nacimientos, defunciones, matrimonios y divorcios.",
+"l": null
+},
+{
+"n": "ESTADÍSTICAS VITALES - DIVORCIOS",
+"f": [
+"XLSX"
+],
+"u": "https://datos.ine.gob.gt/dataset/estadisticas-vitales-divorcios",
+"d": "Registros administrativos de nacimientos, defunciones, matrimonios y divorcios.",
+"l": null
+}
+],
+"Género": [],
+"Pueblos": [],
+"Recurso Humano": []
+}

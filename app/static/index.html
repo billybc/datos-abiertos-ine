@@ -1,0 +1,49 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal de datos · INE Guatemala</title><link rel="stylesheet" href="style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+body{background:#fff;font-family:Montserrat,Segoe UI,system-ui,sans-serif;color:#3b3b3b}
+.top{background:#fff;position:sticky;top:0;z-index:20}.topin{max-width:1140px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:10px 12px}
+.brand{display:flex;align-items:center;text-decoration:none}.brand img{height:62px}.lgs{display:none;align-items:center;gap:8px;color:#0A5CFF;font-weight:700;line-height:1.1;font-size:1.05rem}
+.menu{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.menu a{color:#8a94a6;text-decoration:none;padding:10px 14px;border-radius:6px;font-weight:300;font-size:.82rem}
+.menu a:hover{color:#0A5CFF}.menu a.on{background:#5BB6FF;color:#fff;font-weight:400}
+.herow{max-width:1380px;margin:0 auto;padding:0 12px}.hero2{position:relative;height:460px;background:#72C7FF;margin-bottom:80px}
+.bg{position:absolute;inset:0;overflow:hidden}.bg div{position:absolute}
+.cy{left:0;top:0;width:32%;height:100%;background:#8FF8F8;clip-path:polygon(0 0,0 100%,100% 100%)}
+.band1{right:0;top:0;width:48%;height:100%;background:linear-gradient(120deg,#fff,#f8e6ff);opacity:.85;clip-path:polygon(0 0,14% 0,100% 100%,76% 100%)}
+.band2{right:0;top:0;width:48%;height:100%;background:linear-gradient(120deg,#f3d3ff,#d9a8ff);clip-path:polygon(28% 0,40% 0,100% 100%,92% 100%)}
+.blk{right:9%;top:0;width:22%;height:46%;background:#4DB0FF;clip-path:polygon(25% 0,100% 0,100% 55%,70% 100%,0 100%)}
+.dia{position:absolute;overflow:hidden;transform:rotate(45deg);border-radius:22px;box-shadow:0 8px 20px #0003;background:linear-gradient(135deg,#8FF8F8,#4DB0FF)}
+.dia img{position:absolute;left:-35%;top:-35%;width:170%;height:170%;object-fit:cover;transform:rotate(-45deg)}
+.d1{left:4%;top:24px;width:220px;height:220px}.d2{left:13%;top:250px;width:230px;height:230px}.d3{right:4%;top:60px;width:230px;height:230px}
+.hin{position:absolute;left:0;right:0;top:80px;padding:0 12px}.hin p{color:#fff;text-align:center;font-weight:300;margin:0 0 34px;font-size:.95rem}
+.sb{max-width:900px;margin:auto}.sb input{width:100%;height:56px;border:0;border-radius:8px;padding:0 20px;font-size:1rem;font-family:inherit;box-shadow:0 4px 14px #0002}
+.tags{max-width:900px;margin:60px auto 0;padding-left:84px;color:#fff}.tags h4{margin:0 0 10px}.tags a{color:#fff;margin-right:20px;cursor:pointer;text-decoration:underline;font-size:.9rem}
+.wrap2{max-width:1140px;margin:auto;padding:0 12px}.wrap2 h2{font-weight:600;color:#444;font-size:1.8rem;margin:40px 0 18px}
+.catgrid{grid-template-columns:repeat(3,1fr)}@media(max-width:900px){.catgrid{grid-template-columns:1fr}.dia,.cy,.band1,.band2,.blk{display:none}.hero2{height:300px}.tags{padding-left:0}}
+.res{margin-top:16px}.res a{display:block;padding:12px 16px;margin-bottom:8px;background:#f4f9ff;border-radius:8px;color:#0B1F4D;text-decoration:none}.res a small{display:block;color:#667}
+.mas{text-align:right;margin:14px 0 0}.mas a{color:#555;text-decoration:none;font-size:.85rem}
+.foot{background:#F0F6FC;margin-top:50px;padding:28px 12px;color:#4b5a78}.foot div{max-width:1140px;margin:auto}
+</style></head><body>
+<div class="top"><div class="topin"><a class="brand" href="/"><img src="img/logo.png" alt="INE" onerror="this.style.display='none';document.getElementById('lgs').style.display='flex'">
+<span id="lgs" class="lgs"><svg width="62" height="52" viewBox="0 0 62 52"><rect x="0" y="30" width="16" height="22" rx="3" fill="#18C6F0"/><rect x="20" y="14" width="16" height="38" rx="3" fill="#18C6F0"/><rect x="40" y="0" width="16" height="52" rx="3" fill="#0A5CFF"/></svg><span>Instituto<br>Nacional de<br>Estadística</span></span></a>
+<nav class="menu"><a class="on" href="/">Inicio</a><a href="/static/descargas.html">Conjuntos de datos</a><a href="https://www.ine.gob.gt" target="_blank" rel="noopener">IDE</a><a href="#acerca">Acerca de</a><a id="ses" href="/admin">Iniciar Sesión</a><a href="https://www.ine.gob.gt" target="_blank" rel="noopener">f</a><a href="https://www.ine.gob.gt" target="_blank" rel="noopener">X</a></nav></div></div>
+<div class="herow"><div class="hero2"><div class="bg"><div class="cy"></div><div class="band1"></div><div class="band2"></div><div class="blk"></div></div>
+<div class="dia d1"><img src="img/foto1.jpg" alt="" onerror="this.remove()"></div><div class="dia d2"><img src="img/foto2.jpg" alt="" onerror="this.remove()"></div><div class="dia d3"><img src="img/foto3.jpg" alt="" onerror="this.remove()"></div>
+<div class="hin"><p>Bienvenidos al portal del INE.</p><div class="sb"><input id="q" placeholder="Buscar conjuntos de datos…" oninput="buscar()"></div>
+<div class="tags"><h4>Etiquetas populares</h4><a onclick="tag('precios')">precios</a><a onclick="tag('economia')">economia</a><a onclick="tag('encuesta')">encuesta</a></div></div></div></div>
+<div class="wrap2"><div class="res" id="res"></div>
+<h2>Categorías de datos</h2><div class="catgrid" id="ap"></div><p class="mas"><a href="/static/descargas.html">Ver todos los conjuntos de datos →</a></p></div>
+<div class="foot" id="acerca"><div><b>Acerca de</b><p>Portal de datos abiertos del Instituto Nacional de Estadística de Guatemala. Las cifras se muestran agrupadas y se pueden descargar en Excel y CSV. Fuente: INE Guatemala · versión 3</p></div></div>
+<script>
+const COL={Mujer:'#EC4899',Hombre:'#2563EB','No identificado':'#9CA3AF'},$=i=>document.getElementById(i),fmt=(n,u)=>(u=='q'?'Q ':'')+Math.round(n).toLocaleString('es-GT')+(u=='m2'?' m²':'');
+const N=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();let CATS=[],DS=[];
+function pintar(q){q=N(q||'').trim();const cs=CATS.filter(c=>N(c.nombre).includes(q));
+ $('ap').innerHTML=cs.map(c=>`<a class="cat" href="/static/categoria.html?c=${c.slug}"><span class="ico">${c.icono}</span><div><b>${c.nombre}</b><small>${c.conjuntos} conjunto${c.conjuntos==1?'':'s'} de datos</small></div></a>`).join('')||'<p>No hay categorías con ese nombre.</p>';
+ const ds=q?DS.filter(d=>d.filas&&N(d.nombre+' '+d.desc+' '+d.apartado).includes(q)):[];
+ $('res').innerHTML=q?(ds.length?'<h3>Conjuntos de datos encontrados</h3>'+ds.map(d=>`<a href="${d.url}"><b>${d.nombre}</b><small>${d.apartado} · ${d.filas.toLocaleString('es-GT')} registros</small></a>`).join(''):'<p>No se encontraron conjuntos de datos para esa búsqueda.</p>'):''}
+function buscar(){pintar($('q').value)}function tag(t){$('q').value=t;buscar()}
+(async()=>{
+ fetch('/api/version').then(r=>r.json()).then(v=>{if(v.modo_publico)$('ses').style.display='none'});
+ CATS=await (await fetch('/api/categorias')).json();DS=await (await fetch('/api/catalogo')).json();pintar('')})();
+</script></body></html>

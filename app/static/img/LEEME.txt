@@ -1,0 +1,6 @@
+Pon aqui las imagenes del portal y se muestran solas, sin tocar codigo:
+  logo.png    logo oficial del INE (fondo transparente)
+  foto1.jpg   foto del rombo superior izquierdo
+  foto2.jpg   foto del rombo inferior izquierdo
+  foto3.jpg   foto del rombo derecho
+Si no existen, la pagina usa un logo de texto y rombos de color.

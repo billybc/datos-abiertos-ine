@@ -1,0 +1,15 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Categoría · INE Guatemala</title><link rel="stylesheet" href="style.css?v=3"></head><body>
+<header><div><small>CATEGORÍA DE DATOS</small><h1 id="tit">Cargando…</h1></div><nav><a href="/">Inicio</a><a class="gold" href="/static/descargas.html">⬇ Descargar bases</a></nav></header>
+<div class="wrap" id="lista"></div><footer>Fuente: INE Guatemala · catálogo de datos.ine.gob.gt</footer>
+<script>
+(async()=>{const c=new URLSearchParams(location.search).get('c'),cats=await (await fetch('/api/categorias')).json(),k=cats.find(x=>x.slug==c);
+ if(!k){document.getElementById('tit').textContent='Categoría no encontrada';return}
+ document.getElementById('tit').textContent=k.icono+' '+k.nombre;
+ const loc=(await (await fetch('/api/catalogo')).json()).filter(x=>x.apartado==k.nombre&&x.filas),ine=((await (await fetch('/api/ine')).json())[k.nombre]||[]).filter(x=>!x.l);
+ let h=loc.length?'<h2 class="sec">Con estadísticas en este portal</h2>'+loc.map(x=>`<div class="card" style="margin-bottom:12px"><b>${x.nombre}</b><p>${x.desc}</p><p><small>${x.filas.toLocaleString('es-GT')} registros${x.actualizado?' · actualizado '+x.actualizado:''}</small></p>
+ <div class="dl"><a href="${x.url}" style="background:#D4AF37;color:#0B1F4D">Ver estadísticas</a><a href="/api/descargar/${x.slug}?formato=xlsx">Excel</a><a href="/api/descargar/${x.slug}?formato=csv">CSV</a></div></div>`).join(''):'';
+ h+=ine.length?'<h2 class="sec">Catálogo del INE · '+ine.length+' conjunto'+(ine.length==1?'':'s')+' de datos</h2>'+ine.map(x=>`<div class="card" style="margin-bottom:12px"><b>${x.n}</b>${x.d?'<p>'+x.d+'</p>':''}<p><small>Formatos: ${x.f.join(' · ')}</small></p>
+ <div class="dl"><a href="${x.u}" target="_blank" rel="noopener">Descargar en datos.ine.gob.gt</a></div></div>`).join(''):'';
+ document.getElementById('lista').innerHTML=h||'<div class="card"><b>Aún no hay conjuntos de datos publicados en esta categoría.</b><p>El INE tampoco tiene conjuntos publicados aquí por ahora.</p></div>'})();
+</script></body></html>

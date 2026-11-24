@@ -1,0 +1,8 @@
+ine.db
+*.db
+.env
+__pycache__/
+*.pyc
+.vscode/
+*.log
+.DS_Store

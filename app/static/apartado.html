@@ -1,0 +1,37 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apartado · INE Guatemala</title><link rel="stylesheet" href="style.css?v=3">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script></head><body>
+<header><div><small id="ap">INSTITUTO NACIONAL DE ESTADÍSTICA</small><h1 id="tit">Cargando…</h1></div><nav><a href="/">Inicio</a><a class="gold" href="/static/descargas.html">⬇ Descargar bases</a></nav></header>
+<div class="wrap"><p id="desc"></p><div class="card" style="margin-bottom:14px"><div class="fbar" id="fb"></div></div>
+<div class="kpis" id="kp"></div><div class="grid" id="gr"></div></div><footer>Fuente: INE Guatemala · el sistema solo muestra cifras agrupadas</footer>
+<script>
+const slug=new URLSearchParams(location.search).get('slug'),$=i=>document.getElementById(i);
+const COL={Mujer:'#EC4899',Hombre:'#2563EB','No identificado':'#9CA3AF',Fallecido:'#0B1F4D',Lesionado:'#D4AF37'},PAL=['#0A5CFF','#D4AF37','#0B1F4D','#38BDF8','#F59E0B','#6366F1','#14B8A6','#94A3B8'];
+const col=(n,i)=>COL[n]||PAL[i%PAL.length],fmt=(n,u)=>(u=='q'?'Q ':'')+Math.round(n).toLocaleString('es-GT')+(u=='m2'?' m²':'');
+const N=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const POS={'peten':[3,0],'huehuetenango':[0,1],'quiche':[1,1],'alta verapaz':[2,1],'izabal':[3,1],'san marcos':[0,2],'totonicapan':[1,2],'baja verapaz':[2,2],'el progreso':[3,2],'zacapa':[4,2],'quetzaltenango':[0,3],'solola':[1,3],'chimaltenango':[2,3],'guatemala':[3,3],'jalapa':[4,3],'chiquimula':[5,3],'retalhuleu':[0,4],'suchitepequez':[1,4],'sacatepequez':[2,4],'escuintla':[3,4],'santa rosa':[4,4],'jutiapa':[5,4]};
+let ch=[],sel={},med='',built=false;
+function filtros(d){let h=d.medidas&&Object.keys(d.medidas).length?`<div><label>Medida</label><select id="fm">${Object.entries(d.medidas).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>`:'';
+ h+=d.filtros.map(f=>`<div><label>${f.label}</label><select data-c="${f.col}"><option value="">Todos</option>${f.opciones.map(o=>`<option>${o}</option>`).join('')}</select></div>`).join('');
+ h+='<div><button onclick="limpiar()">Limpiar filtros</button></div>';$('fb').innerHTML=h;
+ document.querySelectorAll('#fb select[data-c]').forEach(s=>s.onchange=()=>{s.value?sel[s.dataset.c]=s.value:delete sel[s.dataset.c];load()});
+ if($('fm'))$('fm').onchange=e=>{med=e.target.value;load()}}
+function limpiar(){sel={};document.querySelectorAll('#fb select[data-c]').forEach(s=>s.value='');load()}
+function pick(l){const s=document.querySelector('select[data-c="departamento"]');if(sel.departamento==l){delete sel.departamento;s.value=''}else{sel.departamento=l;s.value=l}load()}
+function draw(c){const dn=c.tipo=='doughnut',hb=c.tipo=='hbar',n=c.series.length;
+ const ds=dn?[{data:c.series[0].data,backgroundColor:c.labels.map((l,i)=>col(l,i)),borderColor:'#D4AF37',borderWidth:2}]:c.series.map((s,i)=>({label:s.name,data:s.data,backgroundColor:col(s.name,i),borderColor:col(s.name,i),tension:.3}));
+ const o={indexAxis:hb?'y':'x',plugins:{legend:{display:dn||n>1}}};if(!dn&&n>1&&c.tipo!='line')o.scales={x:{stacked:true},y:{stacked:true}};
+ ch.push(new Chart($(c.id),{type:dn?'doughnut':c.tipo=='line'?'line':'bar',data:{labels:c.labels,datasets:ds},options:o}))}
+function mapa(c){const v={};c.labels.forEach((l,i)=>v[l]=c.series.reduce((a,s)=>a+s.data[i],0));const mx=Math.max(1,...Object.values(v));
+ $('map').innerHTML=Object.entries(POS).map(([k,[x,y]])=>{const l=Object.keys(v).find(a=>N(a)==k),val=l?v[l]:0;
+  return `<div class="tile ${l&&sel.departamento==l?'sel':''}" style="grid-column:${x+1};grid-row:${y+1};background:rgba(10,92,255,${l?.2+.8*val/mx:.08});color:${l?'#fff':'#889'}" ${l?`onclick="pick('${l}')"`:''}><span>${l||k}</span><b>${l?Math.round(val).toLocaleString('es-GT'):''}</b></div>`}).join('')}
+async function load(){const p=new URLSearchParams(sel);if(med)p.set('medida',med);
+ const d=await (await fetch('/api/apartado/'+slug+'?'+p)).json();
+ if(d.vacio){$('tit').textContent=d.nombre;$('desc').textContent='Todavía no hay datos cargados en este apartado.';return}
+ $('tit').textContent=d.nombre;$('ap').textContent=d.apartado.toUpperCase();$('desc').textContent=d.descripcion;if(!built){filtros(d);built=true}
+ $('kp').innerHTML=d.kpis.map(k=>`<div class="card kpi" style="border-color:${k.c}"><span>${k.t}</span><b>${fmt(k.v,k.u)}</b></div>`).join('');
+ ch.forEach(c=>c.destroy());ch=[];
+ $('gr').innerHTML=d.charts.map(c=>`<div class="card"><h3>${c.t}</h3>${c.tipo=='mapa'?'<div class="map" id="map"></div>':`<canvas id="${c.id}"></canvas>`}</div>`).join('');
+ d.charts.forEach(c=>c.tipo=='mapa'?mapa(c):draw(c))}
+load();
+</script></body></html>

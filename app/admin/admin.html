@@ -1,0 +1,52 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acceso INE</title><link rel="stylesheet" href="/static/style.css?v=3"><style>.w{max-width:860px;margin:24px auto;padding:0 4vw}.w input{width:100%;padding:10px;margin:6px 0;border:1px solid #c9d0dc;border-radius:10px}hr{border:0;border-top:1px solid #dde}
+.enlace{background:none;color:#0A5CFF;border:0;width:auto;padding:4px 0;margin:8px 0 0;text-decoration:underline;font-weight:400}table{font-size:.8rem}.sm{width:auto;padding:5px 10px;margin:0}</style></head><body>
+<header><div><small>INSTITUTO NACIONAL DE ESTADÍSTICA</small><h1>Panel de carga de datos</h1></div><nav><a href="/">Página pública</a><a class="gold" href="/static/descargas.html">⬇ Bases</a></nav></header>
+<div class="w"><div class="msg" id="m" style="margin:0 0 12px;font-weight:600"></div>
+<div class="card" id="lg"><h3>Iniciar sesión</h3><input id="u" placeholder="Usuario" autocomplete="username"><input id="c" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key=='Enter')entrar()"><button onclick="entrar()">Entrar</button><button class="enlace" onclick="ver('ol')">¿Olvidaste tu contraseña?</button></div>
+<div class="card" id="ol" style="display:none"><h3>Recuperar contraseña</h3><p>Escribe el correo de tu cuenta y te enviamos un enlace para elegir una contraseña nueva.</p><input id="oc" type="email" placeholder="Correo registrado" autocomplete="email"><button onclick="olvide()">Enviar enlace</button><button class="enlace" onclick="ver('lg')">Volver</button></div>
+<div class="card" id="rs" style="display:none"><h3>Elige tu contraseña nueva</h3><input id="n1" type="password" placeholder="Contraseña nueva de 10+ caracteres" autocomplete="new-password"><input id="n2" type="password" placeholder="Repite la contraseña" autocomplete="new-password"><button onclick="restablecer()">Guardar contraseña</button></div>
+<div id="pn" style="display:none"><div class="card" style="margin-bottom:12px"><h3 id="hola"></h3></div>
+<div class="card" style="margin-bottom:12px"><h3>➕ Crear conjunto de datos en cualquier apartado</h3><p>Sube cualquier Excel o CSV y el sistema arma las estadísticas solo.</p>
+<select id="lc"></select><input id="ln" placeholder="Nombre del conjunto de datos"><input id="ld" placeholder="Descripción corta (opcional)"><input type="file" id="lf" accept=".xlsx,.csv"><button onclick="libre()">Crear y publicar</button></div>
+<div id="lb"></div><div id="ap"></div>
+<div class="card" style="margin-bottom:12px"><h3>📊 Indicadores generales por sexo</h3><p>Usa una plantilla, llénala y súbela.</p><div id="pl"></div><input id="f" type="file" accept=".xlsx,.csv,.docx"><button onclick="subir()">Subir indicadores</button></div>
+<div class="card" id="ad" style="display:none;margin-bottom:12px"><h3>Solo administrador</h3><button onclick="exp()">Exportar indicadores</button><button onclick="lim()" style="background:#b91c1c">Borrar indicadores</button>
+<hr><b>Usuarios</b><div style="overflow:auto"><table id="us"></table></div>
+<b>Nuevo usuario</b><input id="nu" placeholder="Usuario"><input id="nm" type="email" placeholder="Correo para recuperar la contraseña"><input id="nc" type="password" placeholder="Contraseña de 10+ caracteres" autocomplete="new-password"><select id="nr"><option>cargador</option><option>admin</option></select><button onclick="crear()">Crear usuario</button>
+<hr><b>Bitácora de actividad</b> <small>hora de Guatemala · últimos 200 movimientos</small> <button class="sm" onclick="bita()">Actualizar</button><div style="overflow:auto;max-height:340px"><table id="bt"></table></div></div>
+<button onclick="salir()" style="background:#64748b">Cerrar sesión</button></div></div>
+<script>
+const $=i=>document.getElementById(i),m=t=>{$('m').textContent=t||''},J={'Content-Type':'application/json'};let rol='',yo='';
+const ver=i=>{['lg','ol','rs','pn'].forEach(x=>$(x).style.display=x==i?'block':'none');m('')};
+async function api(u,o){const r=await fetch(u,o);let j={};try{j=await r.json()}catch(e){}return [r,j]}
+async function entrar(){const [r,j]=await api('/api/login',{method:'POST',headers:J,body:JSON.stringify({usuario:$('u').value,clave:$('c').value})});r.ok?panel():m(j.detail)}
+async function olvide(){const [r,j]=await api('/api/olvide',{method:'POST',headers:J,body:JSON.stringify({correo:$('oc').value})});m(j.mensaje||j.detail)}
+async function restablecer(){if($('n1').value!=$('n2').value)return m('Las contraseñas no coinciden');
+ const [r,j]=await api('/api/restablecer',{method:'POST',headers:J,body:JSON.stringify({token:location.hash.slice(7),clave:$('n1').value})});
+ if(r.ok){history.replaceState(null,'','/admin');ver('lg');m('Contraseña cambiada. Ya puedes iniciar sesión.')}else m(j.detail)}
+async function panel(){const [r,y]=await api('/api/yo');if(!r.ok)return;rol=y.rol;yo=y.usuario;ver('pn');$('hola').textContent='Hola, '+y.usuario+' · '+y.rol;$('ad').style.display=rol=='admin'?'block':'none';
+ const [,cat]=await api('/api/catalogo');const [,cs]=await api('/api/categorias');
+ $('lc').innerHTML=cs.map(c=>`<option value="${c.nombre}">${c.icono} ${c.nombre}</option>`).join('');
+ $('lb').innerHTML=cat.filter(c=>c.libre).map(c=>`<div class="card" style="margin-bottom:12px"><b>${c.icono} ${c.nombre}</b> <small>· ${c.apartado} · ${c.filas.toLocaleString('es-GT')} registros</small> <a href="${c.url}">Ver</a>${rol=='admin'?` <button onclick="borrar('${c.slug}')" style="background:#b91c1c;width:auto">Borrar</button>`:''}</div>`).join('');
+ $('ap').innerHTML=cat.filter(c=>c.slug!='indicadores'&&!c.libre).map(c=>`<div class="card" style="margin-bottom:12px"><h3>${c.icono} ${c.nombre}</h3><p><small>${c.apartado} · ${c.filas.toLocaleString('es-GT')} registros${c.actualizado?' · última carga '+c.actualizado:''}</small></p>
+ <p>Columnas que debe traer el archivo:<br>${c.requeridas.map(x=>'<code>'+x+'</code>').join(' ')}</p><input type="file" id="f_${c.slug}" accept=".xlsx,.csv">
+ <select id="m_${c.slug}"><option value="agregar">Agregar a lo que ya existe</option>${rol=='admin'?'<option value="reemplazar">Reemplazar toda la base</option>':''}</select><button onclick="cargar('${c.slug}')">Cargar archivo</button></div>`).join('');
+ const [,l]=await api('/api/admin/plantillas');$('pl').innerHTML=l.map((n,i)=>`<button onclick="bajar(${i},'${n}')">${n}</button>`).join('');
+ if(rol=='admin'){usuarios();bita()}}
+async function usuarios(){const [,l]=await api('/api/admin/usuarios');$('us').innerHTML='<tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr>'+l.map(x=>`<tr><td>${x.usuario}</td><td>${x.correo||'—'}</td><td>${x.rol}</td><td>${x.activo?'Activo':'Desactivado'}</td><td>${x.usuario==yo?'':`<button class="sm" onclick="estado('${x.usuario}',${!x.activo})">${x.activo?'Desactivar':'Activar'}</button>`}</td></tr>`).join('')}
+async function estado(u,a){const [r,j]=await api('/api/admin/usuarios/'+u+'/estado?activo='+a,{method:'POST'});m(r.ok?'Usuario actualizado':j.detail);usuarios();bita()}
+async function bita(){const [r,l]=await api('/api/admin/bitacora');if(!r.ok)return;$('bt').innerHTML='<tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th><th>IP</th></tr>'+l.map(x=>`<tr><td>${x.fecha}</td><td>${x.usuario}</td><td>${x.accion}</td><td>${x.detalle}</td><td>${x.ip}</td></tr>`).join('')}
+async function cargar(s){const f=$('f_'+s).files[0];if(!f)return m('Elige un archivo');const fd=new FormData();fd.append('archivo',f);fd.append('modo',$('m_'+s).value);m('Cargando…');
+ const [r,j]=await api('/api/admin/cargar/'+s,{method:'POST',body:fd});m(r.ok?'Filas cargadas: '+j.insertadas:j.detail);if(r.ok)panel();scrollTo(0,0)}
+async function libre(){const f=$('lf').files[0];if(!f||!$('ln').value)return m('Escribe el nombre y elige un archivo');const fd=new FormData();fd.append('archivo',f);fd.append('categoria',$('lc').value);fd.append('nombre',$('ln').value);fd.append('descripcion',$('ld').value);m('Creando…');
+ const [r,j]=await api('/api/admin/libre',{method:'POST',body:fd});m(r.ok?'Conjunto creado con '+j.insertadas+' filas':j.detail);if(r.ok)panel();scrollTo(0,0)}
+async function borrar(s){if(!confirm('¿Borrar este conjunto de datos?'))return;const [r,j]=await api('/api/admin/libre/'+s,{method:'DELETE'});m(r.ok?'Conjunto borrado':j.detail);panel()}
+async function bajar(i,n){const r=await fetch('/api/admin/plantilla/'+i);const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='plantilla_'+n+'.xlsx';a.click()}
+async function subir(){const fd=new FormData();fd.append('archivo',$('f').files[0]);const [r,j]=await api('/api/admin/subir',{method:'POST',body:fd});m(r.ok?'Filas cargadas: '+j.insertadas:j.detail);scrollTo(0,0)}
+async function exp(){const r=await fetch('/api/admin/exportar');const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='indicadores.xlsx';a.click();bita()}
+async function lim(){if(!confirm('Se borrarán los indicadores'))return;const [r,j]=await api('/api/admin/limpiar',{method:'DELETE'});m(r.ok?'Indicadores borrados':j.detail);bita()}
+async function crear(){const [r,j]=await api('/api/admin/usuarios',{method:'POST',headers:J,body:JSON.stringify({usuario:$('nu').value,correo:$('nm').value,clave:$('nc').value,rol:$('nr').value})});m(r.ok?'Usuario creado':j.detail);if(r.ok){usuarios();bita()}}
+async function salir(){await api('/api/logout',{method:'POST'});location.hash='';location.reload()}
+if(location.hash.startsWith('#reset='))ver('rs');else panel()
+</script></body></html>
