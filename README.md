@@ -16,10 +16,13 @@ Usuarios a quienes está dirigido:
 - Portada con las 21 categorías de datos del INE, buscador y cantidad de conjuntos por categoría
 - Tablero por apartado con filtros por mes, departamento, sexo y más, mapa de departamentos y gráficos
 - En todos los gráficos por sexo las mujeres van en rosado, los hombres en azul y las personas no identificadas en gris
-- Dos apartados con estadísticas completas: fallecidos y lesionados en hechos de tránsito 2025 y construcciones particulares del departamento de Guatemala
+- Cuatro apartados con estadísticas completas: accidentes de tránsito en sus tres bases, que son fallecidos y lesionados, hechos y vehículos involucrados desde 2021 hasta 2025, y construcciones particulares del departamento de Guatemala
+- Mapa de calor que muestra dónde se concentran los casos y que el usuario arma eligiendo qué va en las filas y qué en las columnas
+- Pestaña de datos y descargas con una fila por año, información adicional y flujo de actividad de las cargas
 - Catálogo de 95 conjuntos publicados por el INE con enlace a su ficha para descargarlos
 - Descarga en Excel y CSV de las bases cargadas con los códigos ya convertidos a nombres
-- Panel de carga con una sección por apartado y una opción para crear un conjunto nuevo en cualquier categoría con estadísticas automáticas
+- Panel de carga donde se suben varios archivos a la vez, cada año se actualiza sin duplicar y los gráficos aparecen solos
+- Editor de nombres para los códigos que traen las bases y opción para crear un conjunto nuevo en cualquier categoría con estadísticas automáticas
 - Seguridad con login, roles, recuperación de contraseña por correo, bloqueo por intentos fallidos y bitácora
 
 ## Arquitectura y tecnologías
@@ -54,14 +57,16 @@ python -m uvicorn app.main:app --port 8001
 Se definen estas variables de entorno: `DATABASE_URL` con la dirección de PostgreSQL, `SECRET_KEY` con una clave larga y aleatoria, `COOKIE_SECURE=1`, `BASE_URL` con la dirección pública y `PUBLIC_ONLY=1` para apagar el panel en el servidor público. Incluye un `Dockerfile`. Después se corre `python cargar_iniciales.py` y `python crear_usuario.py` apuntando a esa base.
 
 ## Conjuntos de datos utilizados
-| Base | Fuente | Archivo | Fecha de descarga |
+| Base | Fuente | Archivos en `datos/` | Fecha de descarga |
 |---|---|---|---|
-| Fallecidos y lesionados en hechos de tránsito 2025 | datos.ine.gob.gt/dataset/accidentes-de-transito-fallecidos-y-lesionados | `datos/base-de-datos-fallecidos-y-lesionados-pnc-2025.xlsx` | [COMPLETAR] |
-| Construcciones particulares a nivel departamental | datos.ine.gob.gt/dataset/construcciones-particulares-nivel-departamental | `datos/bd-construcciones-particulares-departamento-de-guatemala.xlsx` | [COMPLETAR] |
+| Accidentes de tránsito, fallecidos y lesionados | datos.ine.gob.gt/dataset/accidentes-de-transito-fallecidos-y-lesionados | `base-de-datos-fallecidos-y-lesionados-pnc-2024.xlsx` y `2025` | [COMPLETAR] |
+| Accidentes de tránsito, hechos | datos.ine.gob.gt/dataset/accidentes-de-transito-hechos | `base-de-datos-hechos-de-transito-pnc-2024.xlsx` y `2025` | [COMPLETAR] |
+| Accidentes de tránsito, vehículos involucrados | datos.ine.gob.gt/dataset/accidentes-de-transito-vehiculos-involucrados | cinco archivos de 2021 a 2025 | [COMPLETAR] |
+| Construcciones particulares a nivel departamental | datos.ine.gob.gt/dataset/construcciones-particulares-nivel-departamental | `bd-construcciones-particulares-departamento-de-guatemala.xlsx` | [COMPLETAR] |
 
 El catálogo de 95 conjuntos se tomó de las páginas de categorías de datos.ine.gob.gt el [COMPLETAR].
 
-Todas las cifras tienen como fuente al Instituto Nacional de Estadística. Los códigos de departamento, sexo, mes, día de la semana y condición se tradujeron con las claves estándar y se comprobó el día de la semana contra el calendario. El tipo de vehículo y el tipo de evento se muestran como código hasta completar `app/diccionarios.json` con el diccionario oficial.
+Todas las cifras tienen como fuente al Instituto Nacional de Estadística. Los códigos de departamento, sexo, mes, día de la semana y condición se tradujeron con las claves estándar y se comprobó el día de la semana contra el calendario. Los nombres del tipo de vehículo, tipo de evento, marca, color y otros campos se muestran como código hasta que el administrador los escribe en el panel con el diccionario oficial del INE.
 
 ## Uso de inteligencia artificial generativa
 Se usó Claude de Anthropic como asistente de código para generar la primera versión del sistema, y el equipo revisó, probó y puede explicar y defender todo el código presentado.

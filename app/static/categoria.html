@@ -6,7 +6,7 @@
 (async()=>{const c=new URLSearchParams(location.search).get('c'),cats=await (await fetch('/api/categorias')).json(),k=cats.find(x=>x.slug==c);
  if(!k){document.getElementById('tit').textContent='Categoría no encontrada';return}
  document.getElementById('tit').textContent=k.icono+' '+k.nombre;
- const loc=(await (await fetch('/api/catalogo')).json()).filter(x=>x.apartado==k.nombre&&x.filas),ine=((await (await fetch('/api/ine')).json())[k.nombre]||[]).filter(x=>!x.l);
+ const loc=(await (await fetch('/api/catalogo')).json()).filter(x=>x.apartado==k.nombre&&x.filas),ine=((await (await fetch('/api/ine')).json())[k.nombre]||[]).filter(x=>!x.l||!loc.some(y=>y.slug==x.l));
  let h=loc.length?'<h2 class="sec">Con estadísticas en este portal</h2>'+loc.map(x=>`<div class="card" style="margin-bottom:12px"><b>${x.nombre}</b><p>${x.desc}</p><p><small>${x.filas.toLocaleString('es-GT')} registros${x.actualizado?' · actualizado '+x.actualizado:''}</small></p>
  <div class="dl"><a href="${x.url}" style="background:#D4AF37;color:#0B1F4D">Ver estadísticas</a><a href="/api/descargar/${x.slug}?formato=xlsx">Excel</a><a href="/api/descargar/${x.slug}?formato=csv">CSV</a></div></div>`).join(''):'';
  h+=ine.length?'<h2 class="sec">Catálogo del INE · '+ine.length+' conjunto'+(ine.length==1?'':'s')+' de datos</h2>'+ine.map(x=>`<div class="card" style="margin-bottom:12px"><b>${x.n}</b>${x.d?'<p>'+x.d+'</p>':''}<p><small>Formatos: ${x.f.join(' · ')}</small></p>

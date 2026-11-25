@@ -29,9 +29,10 @@ T = Table("indicador", md,
 U = Table("usuario", md, Column("id", Integer, primary_key=True), Column("usuario", String(60), unique=True),
     Column("clave_hash", String(200)), Column("rol", String(20)), Column("activo", Boolean, default=True), Column("correo", String(200)))
 L = Table("carga", md, Column("id", Integer, primary_key=True), Column("slug", String(40)), Column("filas", Integer),
-    Column("archivo", String(200)), Column("usuario", String(60)), Column("fecha", DateTime))
+    Column("archivo", String(200)), Column("usuario", String(60)), Column("fecha", DateTime), Column("detalle", String(200)))
 Cj = Table("conjunto", md, Column("id", Integer, primary_key=True), Column("slug", String(80), unique=True), Column("nombre", String(200)),
     Column("categoria", String(80)), Column("descripcion", String(500)), Column("tabla", String(100)), Column("fecha", DateTime))
+Dc = Table("diccionario", md, Column("id", Integer, primary_key=True), Column("campo", String(40), index=True), Column("codigo", Integer), Column("nombre", String(120)))
 R = Table("recuperacion", md, Column("id", Integer, primary_key=True), Column("usuario_id", Integer, index=True), Column("token_hash", String(64), index=True),
     Column("creado", DateTime), Column("expira", DateTime), Column("usado", Boolean))
 A = Table("intento", md, Column("id", Integer, primary_key=True), Column("usuario", String(60), index=True), Column("ip", String(60), index=True), Column("fecha", DateTime, index=True))
@@ -41,6 +42,8 @@ md.create_all(engine)
 def _migrar():
     if "correo" not in [c["name"] for c in inspect(engine).get_columns("usuario")]:
         with engine.begin() as c: c.execute(text("ALTER TABLE usuario ADD COLUMN correo VARCHAR(200)"))
+    if "detalle" not in [c["name"] for c in inspect(engine).get_columns("carga")]:
+        with engine.begin() as c: c.execute(text("ALTER TABLE carga ADD COLUMN detalle VARCHAR(200)"))
 _migrar()
 from . import perfiles as pf
 from .correo import enviar
@@ -325,6 +328,17 @@ def ultima(slug):
 ESPECIAL = {"indicadores": {"nombre": "Indicadores generales por sexo", "apartado": "Género", "icono": "📊", "tabla": "indicador",
     "desc": "Indicadores cargados con las plantillas por tema, año, departamento y sexo.", "requeridas": REQ, "url": "/static/indicadores.html"}}
 
+def anios_de(tabla):
+    if not tiene(tabla): return []
+    with engine.connect() as c: return [{"anio": int(a), "filas": int(n)} for a, n in c.execute(text(f"SELECT anio, COUNT(*) FROM {tabla} GROUP BY anio ORDER BY anio"))]
+
+def refrescar_dic():
+    try:
+        with engine.connect() as c: filas = list(c.execute(select(Dc)))
+        pf.OVER = {}
+        for r in filas: pf.OVER.setdefault(r.campo, {})[int(r.codigo)] = r.nombre
+    except Exception as e: print("No se pudo leer el diccionario:", e)
+
 def slugify(t):
     return re.sub(r"\W+", "-", unicodedata.normalize("NFKD", str(t).strip().lower()).encode("ascii", "ignore").decode()).strip("-")[:50] or "datos"
 
@@ -335,7 +349,7 @@ def conjunto(slug):
 @app.get("/api/catalogo")
 def catalogo():
     out = [{"slug": k, "nombre": P["nombre"], "apartado": P["apartado"], "desc": P["desc"], "icono": P["icono"], "filas": contar(P["tabla"]),
-            "actualizado": ultima(k), "requeridas": P.get("requeridas", []), "url": P.get("url") or f"/static/apartado.html?slug={k}"}
+            "actualizado": ultima(k), "requeridas": P.get("requeridas", []), "url": P.get("url") or f"/static/apartado.html?slug={k}", "anios": anios_de(P["tabla"]) if k in pf.PERFILES else []}
            for k, P in {**pf.PERFILES, **ESPECIAL}.items()]
     ic = {n: i for _, n, i in pf.CATEGORIAS}
     with engine.connect() as c: libres = [dict(r._mapping) for r in c.execute(select(Cj))]
@@ -367,15 +381,24 @@ def apartado(slug: str, request: Request):
         q = dict(request.query_params)
         return pf.construir_libre(cj["nombre"], cj["categoria"], cj["descripcion"], pd.read_sql_table(cj["tabla"], engine), q, q.get("medida"))
     if not contar(P["tabla"]): return {"vacio": True, "nombre": P["nombre"]}
-    q = dict(request.query_params)
+    refrescar_dic(); q = dict(request.query_params)
     return pf.construir(slug, pd.read_sql_table(P["tabla"], engine), q, q.get("medida"))
 
+@app.get("/api/actividad/{slug}")
+def actividad(slug: str):
+    with engine.connect() as c: filas = list(c.execute(select(L).where(L.c.slug == slug).order_by(L.c.id.desc()).limit(15)))
+    return [{"fecha": (r.fecha - timedelta(hours=6)).strftime("%d/%m/%Y %H:%M"), "archivo": r.archivo, "filas": r.filas, "detalle": r.detalle or ""} for r in filas]
+
 @app.get("/api/descargar/{slug}")
-def descargar(slug: str, formato: str = "xlsx"):
+def descargar(slug: str, formato: str = "xlsx", anio: int = 0):
+    refrescar_dic()
     if slug == "indicadores": df = todo()
     elif conjunto(slug): df = pd.read_sql_table(conjunto(slug)["tabla"], engine)
     elif slug in pf.PERFILES and contar(pf.PERFILES[slug]["tabla"]):
-        P = pf.PERFILES[slug]; df = P["etiquetar"](pd.read_sql_table(P["tabla"], engine))
+        P = pf.PERFILES[slug]; raw = pd.read_sql_table(P["tabla"], engine)
+        if anio: raw = raw[raw["anio"] == anio]
+        if raw.empty: raise HTTPException(404, "Ese año no tiene datos")
+        df = P["etiquetar"](raw)
     else: raise HTTPException(404, "Sin datos para descargar")
     b = io.BytesIO()
     if formato == "csv":
@@ -383,39 +406,98 @@ def descargar(slug: str, formato: str = "xlsx"):
     else:
         df.to_excel(b, index=False); mt, ext = XL, "xlsx"
     b.seek(0)
-    return StreamingResponse(b, media_type=mt, headers={"Content-Disposition": f"attachment; filename={slug}.{ext}"})
+    return StreamingResponse(b, media_type=mt, headers={"Content-Disposition": f"attachment; filename={slug}{'_' + str(anio) if anio else ''}.{ext}"})
 
-def cargar_archivo(slug, raw, nombre, modo="reemplazar", usuario="sistema"):
+@app.get("/api/diccionario")
+def diccionario():
+    refrescar_dic()
+    fijos = (("sexo", pf.SEXO), ("condicion", pf.COND), ("mayor_o_menor", pf.EDAD_MM), ("mes", dict(enumerate(pf.MES, 1))), ("dia_semana", dict(enumerate(pf.DIAS, 1))), ("departamento", pf.DEP))
+    filas = [(c, k, v) for c, m in fijos for k, v in m.items()] + [(c, k, v) for c in pf.CAMPOS_DIC for k, v in sorted(pf.dic_completo(c).items())]
+    b = io.BytesIO(pd.DataFrame(filas, columns=["campo", "codigo", "nombre"]).to_csv(index=False).encode("utf-8-sig")); b.seek(0)
+    return StreamingResponse(b, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=diccionario_codigos.csv"})
+
+def asegurar_columnas(tabla, df):
+    existentes = {c["name"] for c in inspect(engine).get_columns(tabla)}
+    for col in df.columns:
+        if col not in existentes:
+            tipo = "INTEGER" if pd.api.types.is_integer_dtype(df[col]) else "DOUBLE PRECISION" if pd.api.types.is_float_dtype(df[col]) else "TEXT"
+            with engine.begin() as c: c.execute(text(f'ALTER TABLE {tabla} ADD COLUMN "{col}" {tipo}'))
+
+def cargar_archivo(slug, raw, nombre, modo="actualizar", usuario="sistema"):
     P = pf.PERFILES[slug]
     if nombre.lower().endswith(".csv"):
         try: df = pd.read_csv(io.BytesIO(raw))
         except UnicodeDecodeError: df = pd.read_csv(io.BytesIO(raw), encoding="latin-1")
     else: df = pd.read_excel(io.BytesIO(raw))
-    df = P["limpiar"](df)
-    df.to_sql(P["tabla"], engine, if_exists="replace" if modo == "reemplazar" else "append", index=False, chunksize=2000)
-    with engine.begin() as c: c.execute(L.insert().values(slug=slug, filas=len(df), archivo=nombre[:200], usuario=usuario, fecha=datetime.utcnow()))
-    return len(df)
+    df = P["limpiar"](df); tabla = P["tabla"]; anios = sorted(int(a) for a in df["anio"].unique())
+    if modo == "reemplazar" or not tiene(tabla):
+        df.to_sql(tabla, engine, if_exists="replace", index=False, chunksize=2000)
+    else:
+        asegurar_columnas(tabla, df)
+        if modo == "actualizar":
+            with engine.begin() as c: c.execute(text(f"DELETE FROM {tabla} WHERE anio IN ({','.join(str(a) for a in anios)})"))
+        df.to_sql(tabla, engine, if_exists="append", index=False, chunksize=2000)
+    with engine.begin() as c:
+        c.execute(L.insert().values(slug=slug, filas=len(df), archivo=nombre[:200], usuario=usuario, fecha=datetime.utcnow(), detalle=f"{modo} · años {', '.join(map(str, anios))}"[:200]))
+    return len(df), anios
 
 @admin.post("/api/admin/cargar/{slug}")
-async def cargar(request: Request, slug: str, archivo: UploadFile = File(...), modo: str = Form("agregar"), u=Depends(quien)):
+async def cargar(request: Request, slug: str, archivo: UploadFile = File(...), modo: str = Form("actualizar"), u=Depends(quien)):
     if slug not in pf.PERFILES: raise HTTPException(404, "Apartado no existe")
+    if modo not in ("actualizar", "agregar", "reemplazar"): modo = "actualizar"
     if modo == "reemplazar" and u["rol"] != "admin": raise HTTPException(403, "Solo el administrador puede reemplazar una base")
-    try: n = cargar_archivo(slug, await archivo.read(), archivo.filename, modo, u["usuario"])
+    try: n, anios = cargar_archivo(slug, await archivo.read(), archivo.filename, modo, u["usuario"])
     except Exception as e: raise HTTPException(400, str(e))
-    reg(request, u["usuario"], "carga_" + modo, f"{slug} · {archivo.filename} · {n} filas")
-    return {"insertadas": n}
+    reg(request, u["usuario"], "carga_" + modo, f"{slug} · {archivo.filename} · {n} filas · años {anios}")
+    return {"insertadas": n, "anios": anios}
 
-@app.middleware("http")
-async def sin_cache(request: Request, call_next):
-    r = await call_next(request)
-    if not request.url.path.startswith("/api"): r.headers["Cache-Control"] = "no-cache, must-revalidate"
-    return r
+@admin.delete("/api/admin/anio/{slug}/{anio}")
+def borrar_anio(slug: str, anio: int, request: Request, u=Depends(solo_admin)):
+    P = pf.PERFILES.get(slug)
+    if not P or not tiene(P["tabla"]): raise HTTPException(404, "No existe")
+    with engine.begin() as c: n = c.execute(text(f"DELETE FROM {P['tabla']} WHERE anio = :a"), {"a": anio}).rowcount
+    reg(request, u["usuario"], "anio_borrado", f"{slug} · {anio} · {n} filas")
+    return {"borradas": n}
 
-@app.get("/static/admin.html")
-def admin_viejo(): return RedirectResponse("/admin")
+class DicItem(BaseModel):
+    codigo: int
+    nombre: str
 
-@app.get("/api/version")
-def version(): return {"version": 3, "modo_publico": PUBLIC}
+class DicIn(BaseModel):
+    campo: str
+    items: list[DicItem]
+
+@admin.get("/api/admin/diccionarios")
+def dic_listar(u=Depends(solo_admin)):
+    refrescar_dic(); conteo = {k: {} for k in pf.CAMPOS_DIC}
+    for slug in ("transito", "hechos", "vehiculos"):
+        t = pf.PERFILES[slug]["tabla"]
+        if not tiene(t): continue
+        cols = {c["name"] for c in inspect(engine).get_columns(t)}
+        for campo in pf.CAMPOS_DIC:
+            if campo in cols:
+                with engine.connect() as c:
+                    for cod, n in c.execute(text(f'SELECT "{campo}", COUNT(*) FROM {t} WHERE "{campo}" IS NOT NULL GROUP BY "{campo}"')):
+                        conteo[campo][int(cod)] = conteo[campo].get(int(cod), 0) + int(n)
+    out = []
+    for campo, tit in pf.CAMPOS_DIC.items():
+        m = pf.dic_completo(campo); cn = conteo[campo]
+        out.append({"campo": campo, "titulo": tit,
+                    "sin_nombre": [{"codigo": c, "registros": n} for c, n in sorted(cn.items(), key=lambda x: -x[1]) if c not in m and c not in (99, 999, 9999)],
+                    "con_nombre": [{"codigo": c, "nombre": m[c], "registros": cn.get(c, 0)} for c in sorted(m) if campo != "mupio" or c in cn]})
+    return out
+
+@admin.post("/api/admin/diccionarios")
+def dic_guardar(d: DicIn, request: Request, u=Depends(solo_admin)):
+    if d.campo not in pf.CAMPOS_DIC: raise HTTPException(400, "Campo no válido")
+    n = 0
+    with engine.begin() as c:
+        for it in d.items:
+            c.execute(Dc.delete().where(Dc.c.campo == d.campo, Dc.c.codigo == it.codigo))
+            if it.nombre.strip():
+                c.execute(Dc.insert().values(campo=d.campo, codigo=it.codigo, nombre=it.nombre.strip()[:120])); n += 1
+    reg(request, u["usuario"], "diccionario_actualizado", f"{d.campo} · {n} nombres")
+    return {"guardados": n}
 
 def cols_limpias(cols):
     out = []

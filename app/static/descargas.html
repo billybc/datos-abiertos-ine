@@ -6,7 +6,7 @@
 <script>
 let CATS=[],LOC=[],INE={};const N=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function pintar(){const q=N(document.getElementById('q').value.trim());let h='';
- for(const k of CATS){const loc=LOC.filter(x=>x.apartado==k.nombre&&x.filas&&N(x.nombre+' '+x.desc).includes(q)),ine=(INE[k.nombre]||[]).filter(x=>!x.l&&N(x.n+' '+x.d).includes(q));
+ for(const k of CATS){const loc=LOC.filter(x=>x.apartado==k.nombre&&x.filas&&N(x.nombre+' '+x.desc).includes(q)),ine=(INE[k.nombre]||[]).filter(x=>(!x.l||!LOC.some(y=>y.slug==x.l&&y.filas))&&N(x.n+' '+x.d).includes(q));
   if(!loc.length&&!ine.length)continue;
   h+=`<h2 class="sec" id="${k.slug}">${k.icono} ${k.nombre}</h2>`+loc.map(x=>`<div class="card" style="margin-bottom:10px;border-left:5px solid #D4AF37"><b>${x.nombre}</b> <small>· con estadísticas · ${x.filas.toLocaleString('es-GT')} registros</small><p>${x.desc}</p>
   <div class="dl"><a href="/api/descargar/${x.slug}?formato=xlsx">Excel</a><a href="/api/descargar/${x.slug}?formato=csv">CSV</a><a href="${x.url}" style="background:#D4AF37;color:#0B1F4D">Ver estadísticas</a></div></div>`).join('')
