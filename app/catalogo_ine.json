@@ -7,7 +7,7 @@
 ],
 "u": "https://datos.ine.gob.gt/dataset/accidentes-de-transito-vehiculos-involucrados",
 "d": "",
-"l": null
+"l": "vehiculos"
 },
 {
 "n": "ACCIDENTES DE TRÁNSITO - HECHOS",
@@ -16,7 +16,7 @@
 ],
 "u": "https://datos.ine.gob.gt/dataset/accidentes-de-transito-hechos",
 "d": "",
-"l": null
+"l": "hechos"
 },
 {
 "n": "ACCIDENTES DE TRÁNSITO - FALLECIDOS Y LESIONADOS",
