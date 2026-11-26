@@ -13,7 +13,7 @@ COND = {1: "Fallecido", 2: "Lesionado", 9: "Ignorado"}
 EDAD_MM = {1: "Mayor de edad", 2: "Menor de edad", 9: "Ignorado"}
 ORDER = {"mes": MES, "dia_semana": DIAS, "grupo_edad": GEDAD, "rango_area": RANGO}
 NAT = {"hora", "anio", "trimestre"}
-OVER = {}  # nombres de códigos guardados desde el panel, los llena main.py en cada consulta
+OVER = {}
 CAMPOS_DIC = {"tipo_veh": "Tipo de vehículo", "tipo_eve": "Tipo de evento", "marca_veh": "Marca del vehículo", "color_veh": "Color del vehículo",
               "estado_con": "Estado del conductor", "int_o_noint": "Campo int_o_noint", "mupio": "Municipio"}
 
@@ -45,7 +45,7 @@ def pedir(df, cols):
     if falta: raise ValueError("Faltan columnas: " + ", ".join(falta))
     return df
 
-# ---------- Accidentes de tránsito: tres bases con el mismo formato base ----------
+# ---------- Accidentes de tránsito ----------
 COMUN = ["ano_ocu", "mes_ocu", "dia_sem_ocu", "hora_ocu", "depto_ocu", "tipo_eve"]
 RENAME = {"ano_ocu": "anio", "mes_ocu": "mes", "dia_sem_ocu": "dia_sem", "hora_ocu": "hora", "depto_ocu": "depto", "mupio_ocu": "mupio",
           "zona_ocu": "zona", "sexo_per": "sexo", "edad_per": "edad", "fall_les": "condicion"}
@@ -131,6 +131,122 @@ def kpis_constr(d):
     return [{"t": "Construcciones", "v": n, "c": "#0A5CFF", "u": "n"}, {"t": "Área construida", "v": a, "c": "#0B1F4D", "u": "m2"},
             {"t": "Costo aproximado", "v": q, "c": "#D4AF37", "u": "q"}, {"t": "Costo promedio por m²", "v": q / a if a else 0, "c": "#9CA3AF", "u": "q"}]
 
+# ---------- Precios 1: Costos de la CA Urbana y Rural y CBA Urbana y Rural ----------
+def limpiar_cba(df):
+    df = df.rename(columns={c: norm(c) for c in df.columns})
+    if "ano" in df.columns and "anio" not in df.columns:
+        df = df.rename(columns={"ano": "anio"})
+    if "vista" not in df.columns:
+        if "_hoja" in df.columns:
+            df["vista"] = df["_hoja"].astype(str).map(lambda h: "Productos (60)" if "producto" in h.lower() else "Grupos alimenticios (13)")
+        else:
+            df["vista"] = "Productos (60)" if "producto" in df.columns else "Grupos alimenticios (13)"
+    if "grupo_alimenticio" not in df.columns:
+        df["grupo_alimenticio"] = "Todos los grupos"
+    if "producto" not in df.columns:
+        df["producto"] = df["grupo_alimenticio"]
+    else:
+        df["producto"] = df["producto"].fillna(df["grupo_alimenticio"])
+    for col in ("costo_diario", "costo_mensual", "kilocalorias_diarias", "precio_segun_unidad_de_medida_base", "cantidad_base"):
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0) if col in df.columns else 0.0
+    df["anio"] = pd.to_numeric(df["anio"], errors="coerce")
+    return df.dropna(subset=["anio"])
+
+def etiq_cba(df):
+    o = pd.DataFrame(index=df.index)
+    o["anio"] = df["anio"].astype(int)
+    o["mes"] = df["mes"].astype(str).str.strip().str.capitalize()
+    o["vista"] = df["vista"].astype(str)
+    o["grupo_alimenticio"] = df["grupo_alimenticio"].astype(str)
+    if "unidad_de_medida_base" in df.columns and "cantidad_base" in df.columns:
+        o["producto"] = [
+            f"{p} ({int(c) if float(c).is_integer() else c} {str(u).lower()})"
+            if pd.notna(u) and str(u) not in ("nan", "None", "") and float(c) > 0 else str(p)
+            for p, c, u in zip(df["producto"], df["cantidad_base"], df["unidad_de_medida_base"])
+        ]
+    else:
+        o["producto"] = df["producto"].astype(str)
+    o["costo_mensual"] = df["costo_mensual"]
+    o["costo_diario"] = df["costo_diario"]
+    o["precio_unitario"] = df["precio_segun_unidad_de_medida_base"]
+    o["kilocalorias"] = df["kilocalorias_diarias"]
+    return o
+
+def kpis_cba(d):
+    if d.empty: return []
+    sub = d[d["vista"] == "Grupos alimenticios (13)"] if d["vista"].nunique() > 1 and "Grupos alimenticios (13)" in d["vista"].values else d
+    n_meses = max(1, sub[["anio", "mes"]].drop_duplicates().shape[0])
+    mensual = float(sub["costo_mensual"].sum()) / n_meses
+    diario = float(sub["costo_diario"].sum()) / n_meses
+
+    if d["producto"].nunique() == 1 and (d["precio_unitario"] > 0).any():
+        ultimo_precio = float(d.loc[d["precio_unitario"] > 0, "precio_unitario"].iloc[-1])
+        return [
+            {"t": "Precio unitario de mercado", "v": f"Q {ultimo_precio:,.2f}", "c": "#0A5CFF", "u": "txt"},
+            {"t": "Costo mensual en canasta", "v": f"Q {mensual:,.2f}", "c": "#0B1F4D", "u": "txt"},
+            {"t": "Costo diario en canasta", "v": f"Q {diario:,.2f}", "c": "#D4AF37", "u": "txt"},
+            {"t": "Producto seleccionado", "v": str(d["producto"].iloc[0]), "c": "#2563EB", "u": "txt"},
+        ]
+    top_item = sub.groupby("producto")["costo_mensual"].sum().idxmax()
+    return [
+        {"t": "Costo mensual CBA (promedio/mes)", "v": f"Q {mensual:,.2f}", "c": "#0A5CFF", "u": "txt"},
+        {"t": "Costo diario per cápita", "v": f"Q {diario:,.2f}", "c": "#0B1F4D", "u": "txt"},
+        {"t": "Aporte energético diario", "v": round(float(sub["kilocalorias"].sum()) / n_meses, 0), "c": "#D4AF37", "u": "n"},
+        {"t": "Mayor peso en el gasto", "v": str(top_item), "c": "#2563EB", "u": "txt"},
+    ]
+
+# ---------- Precios 2: IPC Base Anual 2024=100.00 ----------
+def limpiar_ipc(df):
+    df = df.rename(columns={c: norm(c) for c in df.columns})
+    if "ano" in df.columns and "anio" not in df.columns:
+        df = df.rename(columns={"ano": "anio"})
+    df["anio"] = pd.to_numeric(df["anio"], errors="coerce")
+    df = df.dropna(subset=["anio", "mes"])
+
+    if "descripcion" in df.columns:
+        out = pd.DataFrame({
+            "anio": df["anio"],
+            "mes": df["mes"],
+            "vista": "Por Producto y Región",
+            "rubro": df["descripcion"].astype(str).str.strip(),
+            "republica": pd.to_numeric(df["republica"], errors="coerce"),
+        })
+        for rom in ("i", "ii", "iii", "iv", "v", "vi", "vii", "viii"):
+            col = f"reg._{rom}"
+            out[f"reg_{rom}"] = pd.to_numeric(df[col], errors="coerce") if col in df.columns else None
+        return out.dropna(subset=["republica"])
+    else:
+        cols_div = [c for c in df.columns if c not in ("anio", "mes", "_hoja")]
+        m = df.melt(id_vars=["anio", "mes"], value_vars=cols_div, var_name="rubro", value_name="republica")
+        m["vista"] = "Por División de Gasto"
+        m["rubro"] = m["rubro"].str.replace("_", " ").str.capitalize()
+        m["republica"] = pd.to_numeric(m["republica"], errors="coerce")
+        return m.dropna(subset=["republica"])
+
+def etiq_ipc(df):
+    o = pd.DataFrame(index=df.index)
+    o["anio"] = df["anio"].astype(int)
+    o["mes"] = df["mes"].astype(str).str.strip().str.capitalize()
+    o["vista"] = df["vista"].astype(str)
+    o["rubro"] = df["rubro"].astype(str)
+    o["republica"] = df["republica"]
+    for i, rom in enumerate(("i", "ii", "iii", "iv", "v", "vi", "vii", "viii"), 1):
+        if f"reg_{rom}" in df.columns:
+            o[f"region_{i}"] = df[f"reg_{rom}"]
+    return o
+
+def kpis_ipc(d):
+    if d.empty: return []
+    rep = float(d["republica"].mean())
+    mayor = d.groupby("rubro")["republica"].mean().idxmax()
+    menor = d.groupby("rubro")["republica"].mean().idxmin()
+    return [
+        {"t": "Índice República (promedio)", "v": f"{rep:.2f}", "c": "#0A5CFF", "u": "txt"},
+        {"t": "Rubro con índice más alto", "v": str(mayor), "c": "#0B1F4D", "u": "txt"},
+        {"t": "Rubro con índice más bajo", "v": str(menor), "c": "#D4AF37", "u": "txt"},
+        {"t": "Productos / Divisiones", "v": int(d["rubro"].nunique()), "c": "#2563EB", "u": "n"},
+    ]
+
 DS = "https://datos.ine.gob.gt/dataset/"
 PERFILES = {
  "transito": {"nombre": "Accidentes de tránsito · Fallecidos y lesionados", "apartado": "Accidentes de Tránsito", "icono": "🚑", "url_ine": DS + "accidentes-de-transito-fallecidos-y-lesionados",
@@ -161,6 +277,51 @@ PERFILES = {
   "filtros": [("anio", "Año"), ("trimestre", "Trimestre"), ("municipio", "Municipio"), ("rango_area", "Tamaño")],
   "calor": [("municipio", "Municipio"), ("trimestre", "Trimestre"), ("rango_area", "Tamaño"), ("anio", "Año")], "calor_def": ("municipio", "trimestre"),
   "charts": [("tri", "Por trimestre", "bar", "trimestre", None, None), ("mun", "Por municipio", "hbar", "municipio", None, 17), ("rango", "Por tamaño de construcción", "doughnut", "rango_area", None, None)]},
+ "costos-cba": {
+  "nombre": "Costos de la CA Urbana y Rural y CBA Urbana y Rural",
+  "apartado": "Precios",
+  "apartados": ["Canasta básica alimentaria y ampliada", "Precios"],
+  "multi_hoja": True,
+  "por_vista": True,
+  "icono": "🛒",
+  "url_ine": DS + "costos-de-la-cba-urbana-y-rural",
+  "desc": "Costos de los productos de la Canasta Ampliada y la Canasta Básica Alimentaria, urbana y rural.",
+  "tabla": "d_costos_cba",
+  "requeridas": ["anio", "mes", "costo_diario", "costo_mensual"],
+  "limpiar": limpiar_cba,
+  "etiquetar": etiq_cba,
+  "kpis": kpis_cba,
+  "medidas": {"costo_mensual": "Costo mensual (Q)", "precio_unitario": "Precio unitario mercado (Q)", "costo_diario": "Costo diario (Q)"},
+  "filtros": [("vista", "Nivel de detalle"), ("anio", "Año"), ("mes", "Mes"), ("producto", "Grupo o Producto")],
+  "calor": [("producto", "Grupo o Producto"), ("mes", "Mes"), ("anio", "Año")],
+  "calor_def": ("producto", "mes"),
+  "charts": [
+      ("mes", "Evolución mensual (Enero a Diciembre por año)", "line", "mes", "anio", None),
+      ("prod", "Costo mensual ordenado de mayor a menor", "hbar", "producto", None, 15),
+  ]
+ },
+ "ipc-2024": {
+  "nombre": "IPC Base Anual 2024=100.00",
+  "apartado": "Precios",
+  "apartados": ["IPC", "Precios"],
+  "por_vista": True,
+  "icono": "📈",
+  "url_ine": DS + "ipc-por-producto-ano-2024-100-0",
+  "desc": "Índice de Precios al Consumidor por producto y por división de gasto (Base 2024 = 100.00).",
+  "tabla": "d_ipc_2024",
+  "requeridas": ["anio", "mes"],
+  "limpiar": limpiar_ipc,
+  "etiquetar": etiq_ipc,
+  "kpis": kpis_ipc,
+  "medidas": {"republica": "Índice República", "region_1": "Región I (Metropolitana)", "region_6": "Región VI (Suroccidente)"},
+  "filtros": [("vista", "Desglose"), ("anio", "Año"), ("mes", "Mes"), ("rubro", "Producto o División")],
+  "calor": [("rubro", "Producto o División"), ("mes", "Mes"), ("anio", "Año")],
+  "calor_def": ("rubro", "mes"),
+  "charts": [
+      ("mes", "Evolución mensual del índice (Enero a Diciembre por año)", "line", "mes", "anio", None),
+      ("rub", "Top 15 con mayor índice de precios", "hbar", "rubro", None, 15),
+  ]
+ },
 }
 
 CATEGORIAS = [("accidentes-de-transito","Accidentes de Tránsito","🚗"),("agropecuario","Agropecuario","🚜"),("canasta-basica","Canasta básica alimentaria y ampliada","🛒"),
@@ -214,7 +375,13 @@ def ordenar(col, vals):
 def serie(d, dim, stack, med, top):
     x = d.dropna(subset=[dim]); keys = [dim] + ([stack] if stack else [])
     if x.empty: return {"labels": [], "series": []}
-    g = x.groupby(keys)[med].sum() if med else x.groupby(keys).size()
+    if med == "precio_unitario" or (med and med.startswith(("republica", "region_"))):
+        g = x.groupby(keys)[med].mean().round(2)
+    elif med in ("costo_mensual", "costo_diario", "kilocalorias") and dim != "mes":
+        n_m = max(1, x[["anio", "mes"]].drop_duplicates().shape[0]) if "anio" in x.columns and "mes" in x.columns else 1
+        g = (x.groupby(keys)[med].sum() / n_m).round(2)
+    else:
+        g = x.groupby(keys)[med].sum().round(2) if med else x.groupby(keys).size()
     p = g.unstack(fill_value=0) if stack else g.to_frame("Total")
     if dim in ORDER or dim in NAT: p = p.loc[ordenar(dim, p.index)]
     else: p = p.loc[p.sum(axis=1).sort_values(ascending=False).index]
@@ -230,15 +397,21 @@ def eje(x, dim, top):
 def calor(d, f, c, med):
     x = d.dropna(subset=[f, c])
     if x.empty: return {"filas": [], "columnas": [], "z": []}
-    g = x.groupby([f, c])[med].sum() if med else x.groupby([f, c]).size()
+    if med == "precio_unitario" or (med and med.startswith(("republica", "region_"))):
+        g = x.groupby([f, c])[med].mean().round(2)
+    else:
+        g = x.groupby([f, c])[med].sum().round(2) if med else x.groupby([f, c]).size()
     p = g.unstack(fill_value=0).reindex(index=eje(x, f, 22), columns=eje(x, c, 24), fill_value=0).fillna(0)
     return {"filas": [str(i) for i in p.index], "columnas": [str(i) for i in p.columns], "z": [[float(v) for v in r] for r in p.values.tolist()]}
 
 def construir(slug, df, params, medida):
     P = PERFILES[slug]; d = P["etiquetar"](df); filtros = []
+    if "vista" in d.columns and not params.get("vista") and "Grupos alimenticios (13)" in d["vista"].values:
+        d = d[d["vista"] == "Grupos alimenticios (13)"]
     anios = [{"anio": int(a), "filas": int(n)} for a, n in d["anio"].value_counts().sort_index().items()]
+    d_orig = P["etiquetar"](df)
     for col, tit in P["filtros"]:
-        if col in d.columns: filtros.append({"col": col, "label": tit, "opciones": [v if isinstance(v, str) else int(v) for v in ordenar(col, d[col].dropna().unique())]})
+        if col in d_orig.columns: filtros.append({"col": col, "label": tit, "opciones": [v if isinstance(v, str) else int(v) for v in ordenar(col, d_orig[col].dropna().unique())]})
     dg = d
     for f in filtros:
         v = params.get(f["col"])
