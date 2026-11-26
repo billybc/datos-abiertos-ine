@@ -17,6 +17,7 @@ Usuarios a quienes está dirigido:
 - Tablero por apartado con filtros por mes, departamento, sexo y más, mapa de departamentos y gráficos
 - En todos los gráficos por sexo las mujeres van en rosado, los hombres en azul y las personas no identificadas en gris
 - Cuatro apartados con estadísticas completas: accidentes de tránsito en sus tres bases, que son fallecidos y lesionados, hechos y vehículos involucrados desde 2021 hasta 2025, y construcciones particulares del departamento de Guatemala
+- Mapa de Guatemala por municipio con los 340 municipios coloreados según la cantidad, que se acerca al departamento elegido y resalta el municipio seleccionado
 - Mapa de calor que muestra dónde se concentran los casos y que el usuario arma eligiendo qué va en las filas y qué en las columnas
 - Pestaña de datos y descargas con una fila por año, información adicional y flujo de actividad de las cargas
 - Catálogo de 95 conjuntos publicados por el INE con enlace a su ficha para descargarlos
@@ -90,7 +91,11 @@ Se usó Claude de Anthropic como asistente de código para generar la primera ve
 | python-multipart | Apache 2.0 |
 | psycopg2-binary | LGPL |
 | Chart.js | MIT |
+| Límites de departamentos y municipios | Ministerio de Finanzas Públicas, repositorio minfin-bi/Mapas-TopoJSON-Guatemala, sin licencia indicada en el repositorio |
 | Montserrat | SIL Open Font License |
+
+## Mapa
+Los límites vienen de los archivos TopoJSON de `datos/mapa/` y `python preparar_mapa.py` los convierte en `app/static/geo/gt_paths.json` y en la lista de nombres de los 340 municipios `app/mun_codigos.json`. Los códigos de municipio de ese mapa coinciden con los de las bases del INE.
 
 ## Limitaciones y posibles mejoras
 - Solo dos apartados tienen formato propio con nombres, mapa y colores por sexo, los demás conjuntos cargados usan estadísticas automáticas con los códigos tal como vienen

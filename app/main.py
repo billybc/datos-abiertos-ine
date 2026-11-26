@@ -52,8 +52,10 @@ COLS = ["tema", "indicador", "anio", "mes", "departamento", "sexo", "grupo_edad"
 REQ = ["tema", "indicador", "anio", "departamento", "sexo", "valor", "fuente"]
 PUBLIC = os.getenv("PUBLIC_ONLY", "0") == "1"
 BASE = os.path.dirname(__file__)
+from starlette.middleware.gzip import GZipMiddleware
 app = FastAPI(title="Datos abiertos INE", docs_url=None, redoc_url=None, openapi_url=None)
 admin = APIRouter()
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 SECRET = (os.getenv("SECRET_KEY") or secrets.token_hex(32)).encode()
 FALLOS = {}
@@ -498,6 +500,18 @@ def dic_guardar(d: DicIn, request: Request, u=Depends(solo_admin)):
                 c.execute(Dc.insert().values(campo=d.campo, codigo=it.codigo, nombre=it.nombre.strip()[:120])); n += 1
     reg(request, u["usuario"], "diccionario_actualizado", f"{d.campo} · {n} nombres")
     return {"guardados": n}
+
+@app.middleware("http")
+async def sin_cache(request: Request, call_next):
+    r = await call_next(request)
+    if not request.url.path.startswith("/api"): r.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return r
+
+@app.get("/static/admin.html")
+def admin_viejo(): return RedirectResponse("/admin")
+
+@app.get("/api/version")
+def version(): return {"version": 4, "modo_publico": PUBLIC}
 
 def cols_limpias(cols):
     out = []

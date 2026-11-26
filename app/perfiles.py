@@ -24,9 +24,13 @@ def dic(n):
     except Exception: j = {}
     return {**j, **OVER.get(n, {})}
 
+def nombres_mun():
+    try: return {int(k): v for k, v in json.load(open(os.path.join(BASE, "mun_codigos.json"), encoding="utf-8")).items()}
+    except Exception: return {100 + k: v for k, v in MUN.items()}
+
 def dic_completo(campo):
     m = {int(k): v for k, v in dic(campo).items()}
-    return {**{100 + k: v for k, v in MUN.items()}, **m} if campo == "mupio" else m
+    return {**nombres_mun(), **m} if campo == "mupio" else m
 
 def lab(s, mapa, pref="Código"):
     m = {int(k): v for k, v in mapa.items()}
@@ -59,7 +63,8 @@ def etiq_transito(df):
     o["mes"] = lab(df.mes, dict(enumerate(MES, 1))); o["dia_semana"] = lab(df.dia_sem, dict(enumerate(DIAS, 1)))
     o["hora"] = df.hora.map(lambda h: None if pd.isna(h) or h > 23 else f"{int(h):02d}:00")
     o["departamento"] = lab(df.depto, DEP)
-    if t("mupio"): o["municipio"] = lab(df.mupio, dic_completo("mupio"), "Municipio")
+    if t("mupio"):
+        o["municipio"] = lab(df.mupio, dic_completo("mupio"), "Municipio"); o["cod_mupio"] = df.mupio
     if t("zona"): o["zona"] = df.zona.map(lambda v: None if pd.isna(v) else ("Sin zona" if int(v) == 99 else f"Zona {int(v)}"))
     if t("sexo"): o["sexo"] = lab(df.sexo, SEXO)
     if t("edad"):
@@ -96,12 +101,13 @@ def kpis_vehiculos(d):
             {"t": "Conductoras mujeres", "v": c("Mujer"), "c": "#EC4899", "u": "n"}, {"t": "No identificados", "v": c("No identificado"), "c": "#9CA3AF", "u": "n"},
             {"t": "Hora con más casos", "v": moda(d, "hora"), "c": "#0B1F4D", "u": "txt"}, {"t": "Departamento con más casos", "v": moda(d, "departamento"), "c": "#D4AF37", "u": "txt"}]
 
-F_BASE = [("anio", "Año"), ("mes", "Mes"), ("departamento", "Departamento")]
+F_BASE = [("anio", "Año"), ("mes", "Mes"), ("departamento", "Departamento"), ("municipio", "Municipio")]
 CALOR = [("dia_semana", "Día de la semana"), ("hora", "Hora"), ("mes", "Mes"), ("departamento", "Departamento"), ("anio", "Año"), ("grupo_edad", "Grupo de edad"),
          ("tipo_vehiculo", "Tipo de vehículo"), ("tipo_evento", "Tipo de evento"), ("sexo", "Sexo"), ("zona", "Zona"), ("municipio", "Municipio"), ("condicion", "Condición")]
 G_ANIO = ("anio", "Víctimas por año", "bar", "anio", "sexo", None)
 G_MES = ("mes", "Por mes, una línea por año", "line", "mes", "anio", None)
-G_MAPA = ("mapa", "Mapa por departamento · clic para filtrar", "mapa", "departamento", None, None)
+G_MAPA = ("mapa", "Mapa por municipio · clic para elegir uno", "mapa", "departamento", None, None)
+G_MUN = ("mun", "Municipios con más casos", "hbar", "municipio", None, 15)
 
 # ---------- Construcciones particulares ----------
 C_REQ = ["ano", "trimestre", "departamento", "municipio", "num_construcciones", "area_con_m2", "costo_aprox_quetzales"]
@@ -115,6 +121,7 @@ def etiq_constr(df):
     o["trimestre"] = df.trimestre.map(lambda t: None if pd.isna(t) else f"Trimestre {int(t)}")
     o["departamento"] = lab(df.depto, DEP)
     o["municipio"] = [MUN.get(int(m), f"Municipio {int(m)}") if d == 1 else f"Municipio {int(m)}" for d, m in zip(df.depto, df.municipio)]
+    o["cod_mupio"] = (df.depto * 100 + df.municipio).astype("Int64")
     o["num"] = df.num; o["area"] = df.area; o["costo"] = df.costo
     o["rango_area"] = pd.cut(df.area, [0, 99, 299, 999, 1e12], labels=RANGO).astype(object)
     return o
@@ -131,21 +138,21 @@ PERFILES = {
   "tabla": "d_transito", "requeridas": COMUN + ["sexo_per", "edad_per", "fall_les"], "limpiar": limpiar_t(COMUN + ["sexo_per", "edad_per", "fall_les"]), "etiquetar": etiq_transito,
   "kpis": kpis_transito, "medidas": {}, "filtros": F_BASE + [("sexo", "Sexo"), ("condicion", "Condición"), ("tipo_vehiculo", "Tipo de vehículo"), ("tipo_evento", "Tipo de evento")],
   "calor": CALOR, "calor_def": ("dia_semana", "hora"),
-  "charts": [("sexo", "Distribución por sexo", "doughnut", "sexo", None, None), G_ANIO, G_MES, G_MAPA, ("edad", "Por grupo de edad", "bar", "grupo_edad", "sexo", None),
+  "charts": [("sexo", "Distribución por sexo", "doughnut", "sexo", None, None), G_ANIO, G_MES, G_MAPA, G_MUN, ("edad", "Por grupo de edad", "bar", "grupo_edad", "sexo", None),
              ("veh", "Por tipo de vehículo", "hbar", "tipo_vehiculo", "condicion", 8)]},
  "hechos": {"nombre": "Accidentes de tránsito · Hechos", "apartado": "Accidentes de Tránsito", "icono": "🚦", "url_ine": DS + "accidentes-de-transito-hechos",
   "desc": "Hechos de tránsito registrados por la PNC. Cada fila es un hecho.",
   "tabla": "d_hechos", "requeridas": COMUN, "limpiar": limpiar_t(COMUN), "etiquetar": etiq_transito, "kpis": kpis_hechos, "medidas": {},
   "filtros": F_BASE + [("dia_semana", "Día de la semana"), ("tipo_vehiculo", "Tipo de vehículo"), ("tipo_evento", "Tipo de evento")],
   "calor": CALOR, "calor_def": ("dia_semana", "hora"),
-  "charts": [("anio", "Hechos por año", "bar", "anio", None, None), G_MES, G_MAPA, ("dia", "Por día de la semana", "bar", "dia_semana", None, None),
+  "charts": [("anio", "Hechos por año", "bar", "anio", None, None), G_MES, G_MAPA, G_MUN, ("dia", "Por día de la semana", "bar", "dia_semana", None, None),
              ("eve", "Por tipo de evento", "doughnut", "tipo_evento", None, None), ("veh", "Por tipo de vehículo", "hbar", "tipo_vehiculo", None, 8)]},
  "vehiculos": {"nombre": "Accidentes de tránsito · Vehículos involucrados", "apartado": "Accidentes de Tránsito", "icono": "🚗", "url_ine": DS + "accidentes-de-transito-vehiculos-involucrados",
   "desc": "Vehículos involucrados en hechos de tránsito registrados por la PNC, con datos del vehículo y de la persona conductora.",
   "tabla": "d_vehiculos", "requeridas": COMUN + ["sexo_per", "edad_per", "tipo_veh"], "limpiar": limpiar_t(COMUN + ["sexo_per", "edad_per", "tipo_veh"]), "etiquetar": etiq_transito,
   "kpis": kpis_vehiculos, "medidas": {}, "filtros": F_BASE + [("sexo", "Sexo"), ("grupo_edad", "Grupo de edad"), ("tipo_vehiculo", "Tipo de vehículo"), ("tipo_evento", "Tipo de evento")],
   "calor": CALOR, "calor_def": ("dia_semana", "hora"),
-  "charts": [("sexo", "Distribución por sexo", "doughnut", "sexo", None, None), G_ANIO, G_MES, G_MAPA, ("edad", "Por grupo de edad", "bar", "grupo_edad", "sexo", None),
+  "charts": [("sexo", "Distribución por sexo", "doughnut", "sexo", None, None), G_ANIO, G_MES, G_MAPA, G_MUN, ("edad", "Por grupo de edad", "bar", "grupo_edad", "sexo", None),
              ("veh", "Por tipo de vehículo", "hbar", "tipo_vehiculo", None, 10), ("eve", "Por tipo de evento", "doughnut", "tipo_evento", None, None)]},
  "construcciones": {"nombre": "Construcciones particulares, departamento de Guatemala", "apartado": "Transporte y Servicios", "icono": "🏗️", "url_ine": DS + "construcciones-particulares-nivel-departamental",
   "desc": "Licencias de construcción particulares por trimestre y municipio con área y costo aproximado.",
@@ -232,18 +239,27 @@ def construir(slug, df, params, medida):
     anios = [{"anio": int(a), "filas": int(n)} for a, n in d["anio"].value_counts().sort_index().items()]
     for col, tit in P["filtros"]:
         if col in d.columns: filtros.append({"col": col, "label": tit, "opciones": [v if isinstance(v, str) else int(v) for v in ordenar(col, d[col].dropna().unique())]})
+    dg = d
     for f in filtros:
-        if params.get(f["col"]): d = d[d[f["col"]].astype(str) == params[f["col"]]]
+        v = params.get(f["col"])
+        if v:
+            d = d[d[f["col"]].astype(str) == v]
+            if f["col"] != "municipio": dg = dg[dg[f["col"]].astype(str) == v]
     med = (medida if medida in P["medidas"] else next(iter(P["medidas"]))) if P["medidas"] else None
     charts = []
     for cid, t, tipo, dim, stack, top in P["charts"]:
-        if dim not in d.columns or d[dim].dropna().empty: continue
+        if dim not in d.columns or (d[dim].dropna().empty and tipo != "mapa"): continue
         if cid == "anio" and len(anios) < 2: continue
         st = stack if stack in d.columns else None
         charts.append({"id": cid, "t": t, "tipo": tipo, **serie(d, dim, st, med, top)})
     ops = [{"k": k, "l": l} for k, l in P["calor"] if k in d.columns]
     f0, c0 = P["calor_def"]; f = params.get("f") if params.get("f") in [o["k"] for o in ops] else f0; c = params.get("c") if params.get("c") in [o["k"] for o in ops] else c0
     if f == c: c = next((o["k"] for o in ops if o["k"] != f), c)
-    return {"nombre": P["nombre"], "apartado": P["apartado"], "descripcion": P["desc"], "filtros": filtros, "medidas": P["medidas"], "medida": med,
+    geo = None
+    if "cod_mupio" in dg.columns:
+        x = dg.dropna(subset=["cod_mupio"]); g = x.groupby("cod_mupio")[med].sum() if med else x.groupby("cod_mupio").size()
+        etq = x[["cod_mupio", "municipio"]].drop_duplicates().set_index("cod_mupio")["municipio"].to_dict()
+        geo = {"vals": {str(int(k)): float(v) for k, v in g.items()}, "lab": {str(int(k)): str(v) for k, v in etq.items()}}
+    return {"geo": geo, "nombre": P["nombre"], "apartado": P["apartado"], "descripcion": P["desc"], "filtros": filtros, "medidas": P["medidas"], "medida": med,
             "kpis": P["kpis"](d), "charts": charts, "filas": len(d), "anios": anios, "url_ine": P["url_ine"],
             "calor": {**calor(d, f, c, med), "f": f, "c": c, "opciones": ops}}

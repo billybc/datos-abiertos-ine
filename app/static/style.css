@@ -45,3 +45,6 @@ h2.sec{margin:22px 0 10px}.fbar{display:grid;grid-template-columns:repeat(auto-f
 .rec{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #e3e7ee}.rec small{display:block;color:#667}.rec .dl{margin-left:auto;white-space:nowrap}
 .xl{background:#16a34a;color:#fff;font-weight:700;font-size:.65rem;padding:9px 6px;border-radius:6px;min-width:42px;text-align:center}
 .info td{padding:8px 6px;border-bottom:1px solid #e3e7ee}.info td:first-child{font-weight:600;width:200px}
+
+@media(min-width:900px){.span2{grid-column:span 2}}
+#geo{background:#f7fafd;border-radius:12px}

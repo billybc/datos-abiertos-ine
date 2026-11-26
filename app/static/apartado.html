@@ -24,10 +24,10 @@ function tab(t){['t1','t2','t3'].forEach(x=>$(x).style.display=x==t?'block':'non
 function filtros(d){let h=d.medidas&&Object.keys(d.medidas).length?`<div><label>Medida</label><select id="fm">${Object.entries(d.medidas).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>`:'';
  h+=d.filtros.map(f=>`<div><label>${f.label}</label><select data-c="${f.col}"><option value="">Todos</option>${f.opciones.map(o=>`<option>${o}</option>`).join('')}</select></div>`).join('');
  h+='<div><button onclick="limpiar()">Limpiar filtros</button></div>';$('fb').innerHTML=h;
- document.querySelectorAll('#fb select[data-c]').forEach(s=>s.onchange=()=>{s.value?sel[s.dataset.c]=s.value:delete sel[s.dataset.c];load()});
+ document.querySelectorAll('#fb select[data-c]').forEach(s=>s.onchange=()=>{s.value?sel[s.dataset.c]=s.value:delete sel[s.dataset.c];if(s.dataset.c=='departamento'){delete sel.municipio;const m=document.querySelector('select[data-c="municipio"]');if(m)m.value=''}load()});
  if($('fm'))$('fm').onchange=e=>{med=e.target.value;load()}}
 function limpiar(){sel={};document.querySelectorAll('#fb select[data-c]').forEach(s=>s.value='');load()}
-function pick(l){const s=document.querySelector('select[data-c="departamento"]');if(sel.departamento==l){delete sel.departamento;if(s)s.value=''}else{sel.departamento=l;if(s)s.value=l}load()}
+function pick(l){const s=document.querySelector('select[data-c="departamento"]');delete sel.municipio;const m=document.querySelector('select[data-c="municipio"]');if(m)m.value='';if(sel.departamento==l){delete sel.departamento;if(s)s.value=''}else{sel.departamento=l;if(s)s.value=l}load()}
 function draw(c){const dn=c.tipo=='doughnut',hb=c.tipo=='hbar',n=c.series.length;
  const ds=dn?[{data:c.series[0].data,backgroundColor:c.labels.map((l,i)=>col(l,i)),borderColor:'#D4AF37',borderWidth:2}]:c.series.map((s,i)=>({label:s.name,data:s.data,backgroundColor:col(s.name,i),borderColor:col(s.name,i),tension:.3}));
  const o={indexAxis:hb?'y':'x',plugins:{legend:{display:dn||n>1}}};if(!dn&&n>1&&c.tipo!='line')o.scales={x:{stacked:true},y:{stacked:true}};
@@ -35,6 +35,20 @@ function draw(c){const dn=c.tipo=='doughnut',hb=c.tipo=='hbar',n=c.series.length
 function mapa(c){const v={};c.labels.forEach((l,i)=>v[l]=c.series.reduce((a,s)=>a+s.data[i],0));const mx=Math.max(1,...Object.values(v));
  $('map').innerHTML=Object.entries(POS).map(([k,[x,y]])=>{const l=Object.keys(v).find(a=>N(a)==k),val=l?v[l]:0;
   return `<div class="tile ${l&&sel.departamento==l?'sel':''}" style="grid-column:${x+1};grid-row:${y+1};background:rgba(10,92,255,${l?.2+.8*val/mx:.08});color:${l?'#fff':'#889'}" ${l?`onclick="pick('${l}')"`:''}><span>${l||k}</span><b>${l?Math.round(val).toLocaleString('es-GT'):''}</b></div>`}).join('')}
+let GEO=null;
+async function geoCargar(){if(!GEO)GEO=await (await fetch('/static/geo/gt_paths.json')).json()}
+const azul=t=>{const S=[[0,[221,235,250]],[.5,[91,155,213]],[1,[11,31,77]]],i=t>.5?1:0,a=S[i],b=S[i+1],u=(t-a[0])/(b[0]-a[0]);return 'rgb('+a[1].map((x,k)=>Math.round(x+(b[1][k]-x)*u)).join(',')+')'};
+function pickMun(l){const s=document.querySelector('select[data-c="municipio"]');if(!l||sel.municipio==l){delete sel.municipio;if(s)s.value=''}else{sel.municipio=l;if(s)s.value=l}load()}
+function geoDibujar(g){const el=$('geo');if(!el)return;const G=GEO,vals=g.vals,mx=Math.max(1,...Object.values(vals)),tot=Object.values(vals).reduce((a,b)=>a+b,0);
+ let bb=G.bbox;const dn=sel.departamento?G.deptos.find(x=>N(x.n)==N(sel.departamento)):null;
+ if(dn)bb=dn.bbox;else{const dc=new Set(Object.keys(vals).map(c=>Math.floor(c/100)*100));if(dc.size==1){const x=G.deptos.find(x=>x.id==[...dc][0]);if(x)bb=x.bbox}}
+ const p=6,vb=[bb[0]-p,bb[1]-p,bb[2]-bb[0]+2*p,bb[3]-bb[1]+2*p],selc=Object.keys(g.lab).find(c=>g.lab[c]==sel.municipio);
+ const path=m=>{const v=vals[m.id]||0,e=m.id==selc;return `<path ${g.lab[m.id]?`data-l="${g.lab[m.id]}"`:''} d="${m.d}" fill="${v?azul(Math.sqrt(v/mx)):'#EEF2F7'}" fill-opacity="${selc&&!e?.45:1}" stroke="${e?'#D4AF37':'#fff'}" stroke-width="${e?2.6:.5}" vector-effect="non-scaling-stroke" style="cursor:${g.lab[m.id]?'pointer':'default'}"><title>${m.n}: ${Math.round(v).toLocaleString('es-GT')}</title></path>`};
+ const ms=[...G.munis.filter(m=>m.id!=selc),...G.munis.filter(m=>m.id==selc)].map(path).join('');
+ el.innerHTML=`<svg viewBox="${vb.join(' ')}" preserveAspectRatio="xMidYMid meet" style="width:100%;max-height:620px"><path d="${G.belice}" fill="#E5E7EB"/>${G.lagos.map(d=>`<path d="${d}" fill="#BFDBFE"/>`).join('')}${ms}${G.deptos.map(d=>`<path d="${d.d}" fill="none" stroke="#5B7DB1" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"/>`).join('')}</svg>`;
+ el.onclick=e=>{const q=e.target.closest('path[data-l]');if(q)pickMun(q.dataset.l)};
+ $('gmx').textContent='Más · '+fmt(mx);
+ $('ginfo').textContent=selc?`${g.lab[selc]}: ${fmt(vals[selc]||0)} casos, ${tot?((vals[selc]||0)/tot*100).toFixed(1):0}% del total del mapa. Haz clic otra vez para quitar la selección.`:'Haz clic en un municipio para ver sus datos en todo el tablero.'}
 function color(v,mx){const t=Math.sqrt(v/mx),S=[[0,[241,245,249]],[.35,[253,230,138]],[.7,[245,158,11]],[1,[185,28,28]]];let i=0;while(i<S.length-2&&t>S[i+1][0])i++;const a=S[i],b=S[i+1],u=(t-a[0])/(b[0]-a[0]);return 'rgb('+a[1].map((x,k)=>Math.round(x+(b[1][k]-x)*u)).join(',')+')'}
 function calor(h){if(!h){$('btnc').style.display='none';return}
  const op=x=>h.opciones.map(o=>`<option value="${o.k}" ${o.k==x?'selected':''}>${o.l}</option>`).join('');$('hf').innerHTML=op(h.f);$('hc').innerHTML=op(h.c);
@@ -55,7 +69,7 @@ async function load(){const p=new URLSearchParams(sel);if(med)p.set('medida',med
  $('tit').textContent=d.nombre;$('ap').textContent=d.apartado.toUpperCase();$('desc').textContent=d.descripcion;if(!built){filtros(d);built=true;$('hf').onchange=e=>{F=e.target.value;load()};$('hc').onchange=e=>{C=e.target.value;load()}}
  $('kp').innerHTML=d.kpis.map(k=>`<div class="card kpi" style="border-color:${k.c}"><span>${k.t}</span><b style="${k.u=='txt'?'font-size:1.2rem':''}">${k.u=='txt'?k.v:fmt(k.v,k.u)}</b></div>`).join('');
  ch.forEach(c=>c.destroy());ch=[];
- $('gr').innerHTML=d.charts.map(c=>`<div class="card"><h3>${c.t}</h3>${c.tipo=='mapa'?'<div class="map" id="map"></div>':`<canvas id="${c.id}"></canvas>`}</div>`).join('');
- d.charts.forEach(c=>c.tipo=='mapa'?mapa(c):draw(c));calor(d.calor);datos(d);actividad()}
+ $('gr').innerHTML=d.charts.map(c=>c.tipo=='mapa'&&d.geo?`<div class="card span2"><h3>${c.t}</h3><div id="geo"></div><div class="leg"></div><div class="legt"><span>Menos</span><span id="gmx">Más</span></div><p id="ginfo" style="font-weight:700;color:#0B1F4D"></p></div>`:`<div class="card"><h3>${c.t}</h3>${c.tipo=='mapa'?'<div class="map" id="map"></div>':`<canvas id="${c.id}"></canvas>`}</div>`).join('');
+ d.charts.forEach(c=>{if(c.tipo!='mapa')draw(c);else if(!d.geo)mapa(c)});if(d.geo)geoCargar().then(()=>geoDibujar(d.geo));calor(d.calor);datos(d);actividad()}
 load();
 </script></body></html>
