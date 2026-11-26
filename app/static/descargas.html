@@ -1,6 +1,6 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html><img src="/static/brand/logo-ine-blanco.png" alt="INE Guatemala" style="height:38px;margin-right:14px;vertical-align:middle"><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Descargar bases · INE Guatemala</title><link rel="stylesheet" href="style.css?v=3"></head><body>
-<header><div><small>INSTITUTO NACIONAL DE ESTADÍSTICA</small><h1>Descargar bases de datos</h1></div><nav><a href="/">Inicio</a></nav></header>
+<header style="background:#004080"><div><small>INSTITUTO NACIONAL DE ESTADÍSTICA</small><h1>Descargar bases de datos</h1></div><nav><a href="/">Inicio</a></nav></header>
 <div class="wrap"><div class="card" style="margin-bottom:14px"><input id="q" placeholder="Buscar una base por nombre…" oninput="pintar()" style="width:100%;padding:12px;border:1px solid #c9d0dc;border-radius:10px"><p id="ind" style="margin:10px 0 0"></p></div><div id="lista"></div></div>
 <footer>Las bases con estadísticas se descargan con los códigos convertidos a nombres. Las demás se descargan desde datos.ine.gob.gt. Fuente: INE Guatemala</footer>
 <script>
@@ -9,9 +9,9 @@ function pintar(){const q=N(document.getElementById('q').value.trim());let h='';
  for(const k of CATS){const loc=LOC.filter(x=>x.apartado==k.nombre&&x.filas&&N(x.nombre+' '+x.desc).includes(q)),ine=(INE[k.nombre]||[]).filter(x=>(!x.l||!LOC.some(y=>y.slug==x.l&&y.filas))&&N(x.n+' '+x.d).includes(q));
   if(!loc.length&&!ine.length)continue;
   h+=`<h2 class="sec" id="${k.slug}">${k.icono} ${k.nombre}</h2>`+loc.map(x=>`<div class="card" style="margin-bottom:10px;border-left:5px solid #D4AF37"><b>${x.nombre}</b> <small>· con estadísticas · ${x.filas.toLocaleString('es-GT')} registros</small><p>${x.desc}</p>
-  <div class="dl"><a href="/api/descargar/${x.slug}?formato=xlsx">Excel</a><a href="/api/descargar/${x.slug}?formato=csv">CSV</a><a href="${x.url}" style="background:#D4AF37;color:#0B1F4D">Ver estadísticas</a></div></div>`).join('')
+  <div class="dl"><a href="/api/descargar/${x.slug}?formato=xlsx">Excel</a><a href="/api/descargar/${x.slug}?formato=csv">CSV</a><a href="${x.url}" style="background:#D4AF37;color:#004080">Ver estadísticas</a></div></div>`).join('')
   +ine.map(x=>`<div class="card" style="margin-bottom:10px"><b>${x.n}</b> <small>· ${x.f.join(' · ')}</small>${x.d?'<p>'+x.d+'</p>':''}<div class="dl"><a href="${x.u}" target="_blank" rel="noopener">Descargar en datos.ine.gob.gt</a></div></div>`).join('')}
  document.getElementById('lista').innerHTML=h||'<div class="card">No se encontraron bases con ese nombre.</div>'}
 (async()=>{CATS=await (await fetch('/api/categorias')).json();LOC=await (await fetch('/api/catalogo')).json();INE=await (await fetch('/api/ine')).json();
- document.getElementById('ind').innerHTML=CATS.filter(k=>k.conjuntos).map(k=>`<a href="#${k.slug}" style="margin-right:12px;color:#0A5CFF">${k.nombre}</a>`).join('');pintar()})();
+ document.getElementById('ind').innerHTML=CATS.filter(k=>k.conjuntos).map(k=>`<a href="#${k.slug}" style="margin-right:12px;color:#0080ff">${k.nombre}</a>`).join('');pintar()})();
 </script></body></html>
